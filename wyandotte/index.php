@@ -25,16 +25,14 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
         .hero-banner {
             position: relative;
             width: 100%;
-            height: calc(100vh - 100px);
+            min-height: 100vh;
             overflow: hidden;
             background: #000;
         }
 
         .hero-image {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
+            height: auto;
             display: block;
         }
 
