@@ -1,0 +1,358 @@
+/* Fantasy Football Section Styles */
+
+/* Fantasy Navigation */
+.fantasy-nav {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-bottom: 3px solid #ff6b35;
+}
+
+.fantasy-nav .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.fantasy-nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.fantasy-nav-links li {
+    margin: 0;
+}
+
+.fantasy-nav-links a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.fantasy-nav-links a:hover,
+.fantasy-nav-links a.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom-color: #ff6b35;
+}
+
+.fantasy-nav-links a i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* Fantasy Main Content */
+.fantasy-main {
+    padding: 30px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #2a5298;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card h3 {
+    color: #1e3c72;
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-card h3 i {
+    margin-right: 10px;
+    color: #ff6b35;
+}
+
+.dashboard-card .stat-value {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #2a5298;
+    margin: 10px 0;
+}
+
+.dashboard-card .stat-label {
+    color: #666;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Recent Activity */
+.recent-activity {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.recent-activity h3 {
+    color: #1e3c72;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+}
+
+.recent-activity h3 i {
+    margin-right: 10px;
+    color: #ff6b35;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #2a5298;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 5px 0;
+}
+
+.activity-meta {
+    font-size: 0.85em;
+    color: #666;
+}
+
+/* Player Rankings */
+.player-rankings {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.player-rankings h3 {
+    color: #1e3c72;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+}
+
+.player-rankings h3 i {
+    margin-right: 10px;
+    color: #ff6b35;
+}
+
+.player-rank-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.player-rank-item:last-child {
+    border-bottom: none;
+}
+
+.rank-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #2a5298;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    font-size: 0.9em;
+}
+
+.player-info {
+    flex: 1;
+}
+
+.player-name {
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 3px 0;
+}
+
+.player-details {
+    font-size: 0.85em;
+    color: #666;
+}
+
+.player-score {
+    font-weight: bold;
+    color: #2a5298;
+}
+
+/* Charts */
+.chart-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.chart-container h3 {
+    color: #1e3c72;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+}
+
+.chart-container h3 i {
+    margin-right: 10px;
+    color: #ff6b35;
+}
+
+#leagueChart {
+    max-height: 300px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .fantasy-nav-links {
+        flex-wrap: wrap;
+    }
+    
+    .fantasy-nav-links a {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .fantasy-main {
+        padding: 20px 15px;
+    }
+    
+    .dashboard-card {
+        padding: 20px;
+    }
+}
+
+/* Table Styles for League/Owner pages */
+.fantasy-table {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.fantasy-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fantasy-table th {
+    background: #1e3c72;
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.fantasy-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.fantasy-table tr:hover {
+    background: #f8f9fa;
+}
+
+.fantasy-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-complete {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2a5298;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

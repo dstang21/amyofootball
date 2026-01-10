@@ -1,0 +1,33 @@
+# Config files with sensitive data
+config.php
+
+# Database dumps
+*.sql
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+error_log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~
+
+# Dependencies (if using Composer)
+vendor/
+composer.lock
+
+# User uploaded content (if applicable)
+uploads/
+user-content/
