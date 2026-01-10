@@ -90,6 +90,16 @@ foreach ($positions as $pos) {
     $stmt->execute([$pos]);
     $players_by_position[$pos] = $stmt->fetchAll();
 }
+
+// Combine LB and DL for the DL slot
+$players_by_position['DL_SLOT'] = array_merge(
+    $players_by_position['DL'] ?? [],
+    $players_by_position['LB'] ?? []
+);
+// Sort combined list by name
+usort($players_by_position['DL_SLOT'], function($a, $b) {
+    return strcmp($a['full_name'], $b['full_name']);
+});
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -264,13 +274,13 @@ foreach ($positions as $pos) {
                 </div>
 
                 <div class="position-group">
-                    <label class="position-label">Defensive Line (DL)</label>
+                    <label class="position-label">Defensive Line (DL or LB)</label>
                     <select name="DL" required>
-                        <option value="">-- Select DL --</option>
-                        <?php foreach ($players_by_position['DL'] as $player): ?>
+                        <option value="">-- Select DL/LB --</option>
+                        <?php foreach ($players_by_position['DL_SLOT'] as $player): ?>
                             <option value="<?php echo $player['id']; ?>"
                                 <?php echo (isset($current_roster[9]) && $current_roster[9]['player_id'] == $player['id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($player['full_name']); ?>
+                                <?php echo htmlspecialchars($player['full_name']); ?> (<?php echo $player['position']; ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
