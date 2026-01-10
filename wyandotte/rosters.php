@@ -111,7 +111,7 @@ foreach ($teams as $team) {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -120,9 +120,10 @@ foreach ($teams as $team) {
             color: white;
             margin-bottom: 20px;
             padding: 15px 10px;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.6);
             border-radius: 10px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .header h1 {
             font-size: 1.8rem;
@@ -148,10 +149,11 @@ foreach ($teams as $team) {
             margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
-            background: rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.5);
             border-radius: 8px;
             padding: 5px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .nav-tabs button {
             padding: 12px 24px;
@@ -162,17 +164,18 @@ foreach ($teams as $team) {
             font-size: 14px;
             font-weight: 600;
             transition: all 0.2s;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.6);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .nav-tabs button:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
+            background: rgba(249,115,22,0.2);
+            color: #fbbf24;
         }
         .nav-tabs button.active {
-            background: rgba(255,255,255,0.95);
-            color: #1e3a8a;
+            background: #f97316;
+            color: white;
+            box-shadow: 0 0 20px rgba(249,115,22,0.4);
         }
         .tab-content {
             display: none;
@@ -277,7 +280,7 @@ foreach ($teams as $team) {
             background: #666;
         }
         .position-badge {
-            background: #2563eb;
+            background: #f97316;
             color: white;
             padding: 4px 12px;
             border-radius: 12px;
@@ -285,6 +288,7 @@ foreach ($teams as $team) {
             font-weight: bold;
             min-width: 40px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(249,115,22,0.3);
         }
         .player-name {
             flex-grow: 1;
@@ -307,10 +311,10 @@ foreach ($teams as $team) {
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .stat-card h3 {
-            color: #1e3a8a;
+            color: #0f172a;
             margin-bottom: 20px;
             font-size: 1.5rem;
-            border-bottom: 3px solid #2563eb;
+            border-bottom: 3px solid #f97316;
             padding-bottom: 10px;
         }
         .stat-item {
@@ -326,7 +330,7 @@ foreach ($teams as $team) {
             font-weight: 500;
         }
         .stat-value {
-            background: #2563eb;
+            background: #f97316;
             color: white;
             padding: 4px 12px;
             border-radius: 12px;
@@ -340,7 +344,7 @@ foreach ($teams as $team) {
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .empty-state h2 {
-            color: #1e3a8a;
+            color: #0f172a;
             margin-bottom: 15px;
         }
         .empty-state p {
@@ -350,12 +354,13 @@ foreach ($teams as $team) {
         .empty-state a {
             display: inline-block;
             padding: 12px 30px;
-            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
             color: white;
             text-decoration: none;
             border-radius: 25px;
             font-weight: bold;
             transition: transform 0.3s;
+            box-shadow: 0 4px 15px rgba(249,115,22,0.4);
         }
         .empty-state a:hover {
             transform: scale(1.05);
@@ -427,17 +432,18 @@ foreach ($teams as $team) {
         .comparison-mode button {
             padding: 10px 20px;
             margin: 5px;
-            border: 2px solid #2563eb;
+            border: 2px solid #f97316;
             background: white;
-            color: #2563eb;
+            color: #f97316;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
         }
         .comparison-mode button:hover {
-            background: #2563eb;
+            background: #f97316;
             color: white;
+            box-shadow: 0 0 15px rgba(249,115,22,0.4);
         }
         .team-card.compare-selected {
             border: 4px solid #ffd700;
@@ -511,7 +517,7 @@ foreach ($teams as $team) {
         .game-score {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #1e3a8a;
+            color: #0f172a;
         }
         .game-vs {
             font-size: 1.5rem;
@@ -1264,22 +1270,22 @@ foreach ($teams as $team) {
                     const scoresHtml = data.team_scores.map((team, index) => {
                         const rank = index + 1;
                         const isFirst = rank === 1;
-                        const pointsColor = team.total_points > 0 ? '#6ee7b7' : '#d1d5db';
-                        const bgColor = isFirst ? 'rgba(20,20,30,0.95)' : 'rgba(30,30,45,0.9)';
-                        const borderColor = isFirst ? '#fbbf24' : 'rgba(100,100,120,0.4)';
+                        const pointsColor = team.total_points > 0 ? '#fbbf24' : '#9ca3af';
+                        const bgColor = isFirst ? 'rgba(15,23,42,0.95)' : 'rgba(30,41,59,0.9)';
+                        const borderColor = isFirst ? '#f97316' : 'rgba(249,115,22,0.3)';
                         
                         return `
-                            <div style="background: ${bgColor}; padding: 12px 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s;">
-                                <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
-                                    <span style="color: #e5e7eb; font-weight: bold; font-size: 1.2rem; min-width: 30px;">${rank}</span>
+                            <div style="background: ${bgColor}; padding: 14px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                                <div style="display: flex; align-items: center; gap: 18px; flex: 1;">
+                                    <span style="color: #fbbf24; font-weight: bold; font-size: 1.3rem; min-width: 35px;">${rank}</span>
                                     <div style="flex: 1;">
-                                        <div style="color: #f3f4f6; font-weight: bold; font-size: 1rem;">${team.team_name}</div>
-                                        <div style="color: #d1d5db; font-size: 0.85rem;">${team.owner_name}</div>
+                                        <div style="color: #ffffff; font-weight: bold; font-size: 1.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${team.team_name}</div>
+                                        <div style="color: #cbd5e1; font-size: 0.9rem;">${team.owner_name}</div>
                                     </div>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div style="color: ${pointsColor}; font-size: 1.5rem; font-weight: bold;">${team.total_points.toFixed(1)}</div>
-                                    <div style="color: #9ca3af; font-size: 0.75rem;">${team.player_count} active</div>
+                                    <div style="color: ${pointsColor}; font-size: 1.8rem; font-weight: bold; text-shadow: 0 2px 8px rgba(251,191,36,0.3);">${team.total_points.toFixed(1)}</div>
+                                    <div style="color: #94a3b8; font-size: 0.8rem;">${team.player_count} active</div>
                                 </div>
                             </div>
                         `;
@@ -1292,7 +1298,7 @@ foreach ($teams as $team) {
                         const scoreElement = document.getElementById('team-score-' + team.team_id);
                         if (scoreElement) {
                             scoreElement.textContent = team.total_points.toFixed(1) + ' pts';
-                            scoreElement.style.color = team.total_points > 0 ? '#4CAF50' : '#fff';
+                            scoreElement.style.color = team.total_points > 0 ? '#fbbf24' : '#fff';
                         }
                     });
                 })
