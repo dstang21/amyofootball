@@ -238,6 +238,17 @@ foreach ($teams as $team) {
         .roster-item:hover {
             background: #e9ecef;
         }
+        .roster-item.has-live-stats {
+            background: #dcfce7;
+            border-left: 4px solid #16a34a;
+        }
+        .player-stats {
+            font-size: 0.75rem;
+            color: #16a34a;
+            font-weight: bold;
+            margin-left: auto;
+            padding-left: 10px;
+        }
         .position-badge {
             background: #667eea;
             color: white;
@@ -495,8 +506,9 @@ foreach ($teams as $team) {
         }
     </style>
 </head>
-<body>
-    <?php include __DIR__ . '/includes/live-ticker.php'; ?>
+<body>playerStats')">📊 Live Player Stats</button>
+        <button onclick="showTab('stats')">League Stats</button>
+        <button onclick="showTab('analytics')">'; ?>
     
     <div class="header">
         <h1>&#127944; WYANDOTTE FOOTBALL LEAGUE</h1>
@@ -551,10 +563,11 @@ foreach ($teams as $team) {
                         <?php if (isset($rosters[$team['id']]) && !empty($rosters[$team['id']])): ?>
                             <ul class="roster-list">
                                 <?php foreach ($rosters[$team['id']] as $player): ?>
-                                    <li class="roster-item" data-player-name="<?php echo strtolower($player['full_name']); ?>">
-                                        <span class="position-badge"><?php echo htmlspecialchars($player['position']); ?></span>
-                                        <span class="player-name"><?php echo htmlspecialchars($player['full_name']); ?></span>
-                                        <span class="nfl-team"><?php echo htmlspecialchars($player['nfl_team_city'] ?? ''); ?></span>
+                                <li class="roster-item" data-player-name="<?php echo strtolower($player['full_name']); ?>" data-player-id="<?php echo $player['player_id']; ?>">
+                                    <span class="position-badge"><?php echo htmlspecialchars($player['position']); ?></span>
+                                    <span class="player-name"><?php echo htmlspecialchars($player['full_name']); ?></span>
+                                    <span class="nfl-team"><?php echo htmlspecialchars($player['nfl_team_city'] ?? ''); ?></span>
+                                    <span class="player-stats" id="stats-<?php echo $player['player_id']; ?>"></span>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
@@ -575,6 +588,18 @@ foreach ($teams as $team) {
         <div class="live-games-grid" id="liveGamesGrid">
             <div style="text-align: center; color: white; grid-column: 1/-1;">
                 <p>Loading live games...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Player Stats Tab -->
+    <div id="playerStats" class="tab-content">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="color: white; font-size: 1.2rem;">Real-time stats for your rostered players</p>
+        </div>
+        <div class="stats-container" id="livePlayerStatsGrid">
+            <div style="text-align: center; color: white; grid-column: 1/-1;">
+                <p>Loading player stats...</p>
             </div>
         </div>
     </div>
@@ -664,6 +689,8 @@ foreach ($teams as $team) {
         let compareMode = false;
         let selectedTeams = [];
         let liveScoresInterval;
+        let livePlayerStatsInterval;
+        let rosterStatsInterval;
 
         function showTab(tabName) {
             // Hide all tabs
@@ -692,6 +719,32 @@ foreach ($teams as $team) {
                 if (liveScoresInterval) {
                     clearInterval(liveScoresInterval);
                     liveScoresInterval = null;
+                }
+            }
+
+            // Load live player stats if that tab is selected
+            if (tabName === 'playerStats') {
+                updateLivePlayerStats();
+                if (!livePlayerStatsInterval) {
+                    livePlayerStatsInterval = setInterval(updateLivePlayerStats, 60000);
+                }
+            } else {
+                if (livePlayerStatsInterval) {
+                    clearInterval(livePlayerStatsInterval);
+                    livePlayerStatsInterval = null;
+                }
+            }
+
+            // Update roster stats if on rosters tab
+            if (tabName === 'rosters') {
+                updateRosterStats();
+                if (!rosterStatsInterval) {
+                    rosterStatsInterval = setInterval(updateRosterStats, 60000);
+                }
+            } else {
+                if (rosterStatsInterval) {
+                    clearInterval(rosterStatsInterval);
+                    rosterStatsInterval = null;
                 }
             }
         }
@@ -889,6 +942,149 @@ foreach ($teams as $team) {
                         '<div style="text-align: center; color: white; grid-column: 1/-1;"><p>Error loading scores. Please try again.</p></div>';
                 });
         }
+
+        // Live player stats update function
+        function updateLivePlayerStats() {
+            fetch('api/live-player-stats.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success || !data.players || data.players.length === 0) {
+                        document.getElementById('livePlayerStatsGrid').innerHTML = 
+                            '<div style="text-align: center; color: white; grid-column: 1/-1;"><p>No live stats available yet</p></div>';
+                        return;
+                    }
+
+                    const statsHtml = data.players.map(player => {
+                        const liveIndicator = player.is_live ? '<span class="live-indicator"></span>' : '';
+                        
+                        let statsDisplay = [];
+                        
+                        // Passing stats
+                        if (player.stats.passing) {
+                            const p = player.stats.passing;
+                            statsDisplay.push(`
+                                <div class="stat-item">
+                                    <span class="stat-label">Passing</span>
+                                    <span class="stat-value">${p.completions}/${p.attempts}, ${p.yards} YDS, ${p.tds} TD, ${p.interceptions} INT</span>
+                                </div>
+                            `);
+                        }
+                        
+                        // Rushing stats
+                        if (player.stats.rushing) {
+                            const r = player.stats.rushing;
+                            statsDisplay.push(`
+                                <div class="stat-item">
+                                    <span class="stat-label">Rushing</span>
+                                    <span class="stat-value">${r.attempts} ATT, ${r.yards} YDS, ${r.tds} TD</span>
+                                </div>
+                            `);
+                        }
+                        
+                        // Receiving stats
+                        if (player.stats.receiving) {
+                            const rec = player.stats.receiving;
+                            statsDisplay.push(`
+                                <div class="stat-item">
+                                    <span class="stat-label">Receiving</span>
+                                    <span class="stat-value">${rec.receptions} REC, ${rec.yards} YDS, ${rec.tds} TD</span>
+                                </div>
+                            `);
+                        }
+                        
+                        // Defensive stats
+                        if (player.stats.defensive) {
+                            const d = player.stats.defensive;
+                            statsDisplay.push(`
+                                <div class="stat-item">
+                                    <span class="stat-label">Defense</span>
+                                    <span class="stat-value">${d.tackles} TCK, ${d.sacks} SCK, ${d.interceptions} INT</span>
+                                </div>
+                            `);
+                        }
+
+                        if (statsDisplay.length === 0) {
+                            statsDisplay.push('<div class="stat-item"><span class="stat-label">No stats yet</span></div>');
+                        }
+
+                        return `
+                            <div class="stat-card ${player.is_live ? 'live' : ''}">
+                                <h3>${liveIndicator}${player.name} <small style="color: #999;">(${player.position} - ${player.team})</small></h3>
+                                ${statsDisplay.join('')}
+                            </div>
+                        `;
+                    }).join('');
+
+                    document.getElementById('livePlayerStatsGrid').innerHTML = statsHtml;
+                })
+                .catch(error => {
+                    console.error('Failed to update player stats:', error);
+                });
+        }
+
+        // Update roster stats inline
+        function updateRosterStats() {
+            fetch('api/live-player-stats.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success || !data.players) return;
+
+                    // Create lookup by player ID
+                    const statsLookup = {};
+                    data.players.forEach(player => {
+                        statsLookup[player.player_id] = player;
+                    });
+
+                    // Update each roster item
+                    document.querySelectorAll('.roster-item').forEach(item => {
+                        const playerId = item.getAttribute('data-player-id');
+                        const statsSpan = item.querySelector('.player-stats');
+                        
+                        if (!playerId || !statsSpan) return;
+                        
+                        const playerStats = statsLookup[playerId];
+                        if (!playerStats) {
+                            statsSpan.innerHTML = '';
+                            item.classList.remove('has-live-stats');
+                            return;
+                        }
+
+                        // Build compact stats string
+                        let statText = [];
+                        
+                        if (playerStats.stats.passing) {
+                            const p = playerStats.stats.passing;
+                            statText.push(`${p.yards} YDS, ${p.tds} TD`);
+                        }
+                        if (playerStats.stats.rushing) {
+                            const r = playerStats.stats.rushing;
+                            statText.push(`${r.yards} RUSH, ${r.tds} TD`);
+                        }
+                        if (playerStats.stats.receiving) {
+                            const rec = playerStats.stats.receiving;
+                            statText.push(`${rec.receptions} REC, ${rec.yards} YDS`);
+                        }
+                        if (playerStats.stats.defensive) {
+                            const d = playerStats.stats.defensive;
+                            statText.push(`${d.tackles} TCK, ${d.sacks} SCK`);
+                        }
+
+                        if (statText.length > 0) {
+                            statsSpan.innerHTML = statText.join(' | ');
+                            item.classList.add('has-live-stats');
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to update roster stats:', error);
+                });
+        }
+
+        // Initialize roster stats on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRosterStats();
+            rosterStatsInterval = setInterval(updateRosterStats, 60000);
+        });
     </script>
 </body>
 </html>
