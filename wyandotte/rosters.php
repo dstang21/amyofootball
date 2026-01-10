@@ -976,7 +976,7 @@ foreach ($teams as $team) {
                             statsDisplay.push(`
                                 <div class="stat-item">
                                     <span class="stat-label">Rushing</span>
-                                    <span class="stat-value">${r.attempts} ATT, ${r.yards} YDS, ${r.tds} TD</span>
+                                    <span class="stat-value">${r.attempts} CAR, ${r.yards} YDS, ${r.tds} TD</span>
                                 </div>
                             `);
                         }
@@ -998,7 +998,7 @@ foreach ($teams as $team) {
                             statsDisplay.push(`
                                 <div class="stat-item">
                                     <span class="stat-label">Defense</span>
-                                    <span class="stat-value">${d.tackles} TCK, ${d.sacks} SCK, ${d.interceptions} INT</span>
+                                    <span class="stat-value">${d.tackles} TKL, ${d.sacks} SCK, ${d.interceptions} INT</span>
                                 </div>
                             `);
                         }
@@ -1054,19 +1054,19 @@ foreach ($teams as $team) {
                         
                         if (playerStats.stats.passing) {
                             const p = playerStats.stats.passing;
-                            statText.push(`${p.yards} YDS, ${p.tds} TD`);
+                            statText.push(`${p.yards} PASS YDS, ${p.tds} TD`);
                         }
                         if (playerStats.stats.rushing) {
                             const r = playerStats.stats.rushing;
-                            statText.push(`${r.yards} RUSH, ${r.tds} TD`);
+                            statText.push(`${r.yards} RUSH YDS, ${r.tds} TD`);
                         }
                         if (playerStats.stats.receiving) {
                             const rec = playerStats.stats.receiving;
-                            statText.push(`${rec.receptions} REC, ${rec.yards} YDS`);
+                            statText.push(`${rec.receptions} REC, ${rec.yards} YDS, ${rec.tds} TD`);
                         }
                         if (playerStats.stats.defensive) {
                             const d = playerStats.stats.defensive;
-                            statText.push(`${d.tackles} TCK, ${d.sacks} SCK`);
+                            statText.push(`${d.tackles} TKL, ${d.sacks} SCK`);
                         }
 
                         if (statText.length > 0) {

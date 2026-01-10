@@ -89,7 +89,8 @@ if (isset($scoreboard['events'])) {
                 $teamName = $teamStats['team']['displayName'] ?? '';
                 
                 foreach ($teamStats['statistics'] as $statCategory) {
-                    $categoryName = $statCategory['name'] ?? ''; // passing, rushing, receiving, etc.
+                    $categoryName = $statCategory['name'] ?? '';
+                    $labels = $statCategory['labels'] ?? [];
                     
                     if (!isset($statCategory['athletes'])) continue;
                     
@@ -115,42 +116,45 @@ if (isset($scoreboard['events'])) {
                             ];
                         }
                         
-                        // Extract stats - this is already an indexed array
+                        // Extract stats using labels as keys
                         $stats = $athlete['stats'] ?? [];
+                        $parsedStats = [];
                         
-                        // Parse stats based on category
+                        for ($i = 0; $i < count($labels); $i++) {
+                            $label = strtoupper($labels[$i] ?? '');
+                            $value = $stats[$i] ?? '0';
+                            $parsedStats[$label] = $value;
+                        }
+                        
+                        // Parse stats based on category with proper label matching
                         if ($categoryName === 'passing') {
                             $allPlayerStats[$playerId]['stats']['passing'] = [
-                                'completions' => isset($stats[0]) ? intval($stats[0]) : 0,
-                                'attempts' => isset($stats[1]) ? intval($stats[1]) : 0,
-                                'yards' => isset($stats[2]) ? intval($stats[2]) : 0,
-                                'avg' => isset($stats[3]) ? floatval($stats[3]) : 0,
-                                'tds' => isset($stats[4]) ? intval($stats[4]) : 0,
-                                'interceptions' => isset($stats[5]) ? intval($stats[5]) : 0,
+                                'completions' => intval($parsedStats['C/ATT'] ?? explode('/', $parsedStats['C/ATT'] ?? '0/0')[0] ?? 0),
+                                'attempts' => intval(explode('/', $parsedStats['C/ATT'] ?? '0/0')[1] ?? 0),
+                                'yards' => intval($parsedStats['YDS'] ?? 0),
+                                'tds' => intval($parsedStats['TD'] ?? 0),
+                                'interceptions' => intval($parsedStats['INT'] ?? 0),
                             ];
                         } elseif ($categoryName === 'rushing') {
                             $allPlayerStats[$playerId]['stats']['rushing'] = [
-                                'attempts' => isset($stats[0]) ? intval($stats[0]) : 0,
-                                'yards' => isset($stats[1]) ? intval($stats[1]) : 0,
-                                'avg' => isset($stats[2]) ? floatval($stats[2]) : 0,
-                                'long' => isset($stats[3]) ? intval($stats[3]) : 0,
-                                'tds' => isset($stats[4]) ? intval($stats[4]) : 0,
+                                'attempts' => intval($parsedStats['CAR'] ?? 0),
+                                'yards' => intval($parsedStats['YDS'] ?? 0),
+                                'tds' => intval($parsedStats['TD'] ?? 0),
+                                'long' => intval($parsedStats['LONG'] ?? 0),
                             ];
                         } elseif ($categoryName === 'receiving') {
                             $allPlayerStats[$playerId]['stats']['receiving'] = [
-                                'receptions' => isset($stats[0]) ? intval($stats[0]) : 0,
-                                'yards' => isset($stats[1]) ? intval($stats[1]) : 0,
-                                'avg' => isset($stats[2]) ? floatval($stats[2]) : 0,
-                                'long' => isset($stats[3]) ? intval($stats[3]) : 0,
-                                'tds' => isset($stats[4]) ? intval($stats[4]) : 0,
+                                'receptions' => intval($parsedStats['REC'] ?? 0),
+                                'yards' => intval($parsedStats['YDS'] ?? 0),
+                                'tds' => intval($parsedStats['TD'] ?? 0),
+                                'long' => intval($parsedStats['LONG'] ?? 0),
                             ];
                         } elseif ($categoryName === 'defensive') {
                             $allPlayerStats[$playerId]['stats']['defensive'] = [
-                                'tackles' => isset($stats[0]) ? intval($stats[0]) : 0,
-                                'solo' => isset($stats[1]) ? intval($stats[1]) : 0,
-                                'sacks' => isset($stats[2]) ? floatval($stats[2]) : 0,
-                                'interceptions' => isset($stats[3]) ? intval($stats[3]) : 0,
-                                'forced_fumbles' => isset($stats[4]) ? intval($stats[4]) : 0,
+                                'tackles' => intval($parsedStats['TOT'] ?? 0),
+                                'solo' => intval($parsedStats['SOLO'] ?? 0),
+                                'sacks' => floatval($parsedStats['SACKS'] ?? 0),
+                                'interceptions' => intval($parsedStats['INT'] ?? 0),
                             ];
                         }
                     }
