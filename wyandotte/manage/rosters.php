@@ -7,29 +7,34 @@ if (!isLoggedIn()) {
 
 $page_title = 'Wyandotte League - Build Rosters';
 
-// Get team if specified
-$team_id = isset($_GET['team_id']) ? (int)$_GET['team_id'] : null;
-$current_team = null;
+// Get user if specified
+$user_id = isset($_GET['user_id']) ? $_GET['user_id'] : null;
+$current_user = null;
 
-if ($team_id) {
-    $stmt = $pdo->prepare("SELECT * FROM wyandotte_teams WHERE id = ?");
-    $stmt->execute([$team_id]);
-    $current_team = $stmt->fetch();
+if ($user_id) {
+    $stmt = $pdo->prepare("
+        SELECT slu.*, wp.joined_at 
+        FROM sleeper_league_users slu
+        JOIN wyandotte_participants wp ON slu.user_id = wp.user_id
+        WHERE slu.user_id = ?
+    ");
+    $stmt->execute([$user_id]);
+    $current_user = $stmt->fetch();
 }
 
 // Handle roster updates
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'save_roster') {
-    $team_id = (int)$_POST['team_id'];
+    $user_id = $_POST['user_id'];
     
     try {
         $pdo->beginTransaction();
         
         // Delete existing roster
-        $stmt = $pdo->prepare("DELETE FROM wyandotte_rosters WHERE team_id = ?");
-        $stmt->execute([$team_id]);
+        $stmt = $pdo->prepare("DELETE FROM wyandotte_rosters WHERE user_id = ?");
+        $stmt->execute([$user_id]);
         
         // Insert new roster
-        $stmt = $pdo->prepare("INSERT INTO wyandotte_rosters (team_id, player_id, position, slot_number) VALUES (?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO wyandotte_rosters (user_id, player_id, position, slot_number) VALUES (?, ?, ?, ?)");
         
         $positions = ['QB' => 1, 'RB1' => 2, 'RB2' => 3, 'WR1' => 4, 'WR2' => 5, 'TE' => 6, 'DB' => 7, 'LB' => 8, 'DL' => 9];
         
@@ -37,37 +42,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             if (!empty($_POST[$pos_key]) && $_POST[$pos_key] != '') {
                 $player_id = (int)$_POST[$pos_key];
                 $position = preg_replace('/[0-9]/', '', $pos_key); // Remove numbers from position
-                $stmt->execute([$team_id, $player_id, $position, $slot_num]);
+                $stmt->execute([$user_id, $player_id, $position, $slot_num]);
             }
         }
         
         $pdo->commit();
         $success = "Roster saved successfully!";
         
-        // Reload current team
-        $stmt = $pdo->prepare("SELECT * FROM wyandotte_teams WHERE id = ?");
-        $stmt->execute([$team_id]);
-        $current_team = $stmt->fetch();
+        // Reload current user
+        $stmt = $pdo->prepare("
+            SELECT slu.*, wp.joined_at 
+            FROM sleeper_league_users slu
+            JOIN wyandotte_participants wp ON slu.user_id = wp.user_id
+            WHERE slu.user_id = ?
+        ");
+        $stmt->execute([$user_id]);
+        $current_user = $stmt->fetch();
     } catch (PDOException $e) {
         $pdo->rollBack();
         $error = "Error saving roster: " . $e->getMessage();
     }
 }
 
-// Get all teams for dropdown
-$teams = $pdo->query("SELECT * FROM wyandotte_teams ORDER BY team_name")->fetchAll();
+// Get all participants for dropdown
+$participants = $pdo->query("
+    SELECT slu.* 
+    FROM sleeper_league_users slu
+    JOIN wyandotte_participants wp ON slu.user_id = wp.user_id
+    ORDER BY slu.display_name
+")->fetchAll();
 
-// Get current roster if team selected
+// Get current roster if user selected
 $current_roster = [];
-if ($team_id) {
+if ($user_id) {
     $stmt = $pdo->prepare("
         SELECT r.*, p.full_name, r.position, r.slot_number
         FROM wyandotte_rosters r
         JOIN players p ON r.player_id = p.id
-        WHERE r.team_id = ?
+        WHERE r.user_id = ?
         ORDER BY r.slot_number
     ");
-    $stmt->execute([$team_id]);
+    $stmt->execute([$user_id]);
     $roster_data = $stmt->fetchAll();
     
     foreach ($roster_data as $row) {
@@ -113,24 +128,23 @@ foreach ($positions as $pos) {
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background: white; }
         button { padding: 12px 30px; background: #1e3c72; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
         button:hover { background: #2a5298; }
-        .team-selector { background: #f8f9fa; padding: 20px; border-radius: 4px; margin-bottom: 30px; }
-        .team-selector select { max-width: 400px; }
+        .user-selector { background: #f8f9fa; padding: 20px; border-radius: 4px; margin-bottom: 30px; }
+        .user-selector select { max-width: 400px; }
         .roster-form { background: #fff; }
         .position-group { background: #f8f9fa; padding: 20px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #1e3c72; }
         .position-label { color: #1e3c72; font-size: 18px; text-transform: uppercase; }
-        .no-team { text-align: center; padding: 60px 20px; color: #999; }
-        .current-player { color: #28a745; font-size: 12px; margin-top: 5px; }
+        .no-user { text-align: center; padding: 60px 20px; color: #999; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="nav">
             <a href="../index.php">← Back to League</a>
-            <a href="teams.php">Manage Teams</a>
+            <a href="teams.php">Select Participants</a>
             <a href="rosters.php">Build Rosters</a>
         </div>
 
-        <h1>🏈 Build Team Roster</h1>
+        <h1>🏈 Build Playoff Roster</h1>
 
         <?php if (isset($success)): ?>
             <div class="alert alert-success"><?php echo $success; ?></div>
@@ -139,25 +153,25 @@ foreach ($positions as $pos) {
             <div class="alert alert-error"><?php echo $error; ?></div>
         <?php endif; ?>
 
-        <div class="team-selector">
-            <label for="team-select">Select Team:</label>
-            <select id="team-select" onchange="window.location.href='rosters.php?team_id=' + this.value">
-                <option value="">-- Choose a team --</option>
-                <?php foreach ($teams as $team): ?>
-                    <option value="<?php echo $team['id']; ?>" <?php echo ($team_id == $team['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($team['team_name']); ?> (<?php echo htmlspecialchars($team['owner_name']); ?>)
+        <div class="user-selector">
+            <label for="user-select">Select Participant:</label>
+            <select id="user-select" onchange="window.location.href='rosters.php?user_id=' + this.value">
+                <option value="">-- Choose a participant --</option>
+                <?php foreach ($participants as $p): ?>
+                    <option value="<?php echo $p['user_id']; ?>" <?php echo ($user_id == $p['user_id']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($p['display_name']); ?> (<?php echo htmlspecialchars($p['username']); ?>)
                     </option>
                 <?php endforeach; ?>
             </select>
         </div>
 
-        <?php if ($current_team): ?>
-            <h2>Roster for: <?php echo htmlspecialchars($current_team['team_name']); ?></h2>
-            <p style="margin-bottom: 30px; color: #666;">Owner: <?php echo htmlspecialchars($current_team['owner_name']); ?></p>
+        <?php if ($current_user): ?>
+            <h2>Roster for: <?php echo htmlspecialchars($current_user['display_name']); ?></h2>
+            <p style="margin-bottom: 30px; color: #666;">Team: <?php echo htmlspecialchars($current_user['team_name'] ?: 'N/A'); ?></p>
 
             <form method="POST" class="roster-form">
                 <input type="hidden" name="action" value="save_roster">
-                <input type="hidden" name="team_id" value="<?php echo $team_id; ?>">
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
 
                 <div class="position-group">
                     <label class="position-label">Quarterback (QB)</label>
@@ -279,9 +293,9 @@ foreach ($positions as $pos) {
                 <button type="submit">💾 Save Roster</button>
             </form>
         <?php else: ?>
-            <div class="no-team">
-                <h2>Please select a team from the dropdown above</h2>
-                <p style="margin-top: 10px;">Or <a href="teams.php">create a new team</a></p>
+            <div class="no-user">
+                <h2>Please select a participant from the dropdown above</h2>
+                <p style="margin-top: 10px;">Or <a href="teams.php">add participants</a></p>
             </div>
         <?php endif; ?>
     </div>
