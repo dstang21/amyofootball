@@ -121,16 +121,18 @@ if (isset($scoreboard['events'])) {
                         $parsedStats = [];
                         
                         for ($i = 0; $i < count($labels); $i++) {
-                            $label = strtoupper($labels[$i] ?? '');
+                            $label = $labels[$i] ?? '';
                             $value = $stats[$i] ?? '0';
                             $parsedStats[$label] = $value;
                         }
                         
                         // Parse stats based on category with proper label matching
                         if ($categoryName === 'passing') {
+                            // C/ATT format like "20/30"
+                            $catt = explode('/', $parsedStats['C/ATT'] ?? '0/0');
                             $allPlayerStats[$playerId]['stats']['passing'] = [
-                                'completions' => intval($parsedStats['C/ATT'] ?? explode('/', $parsedStats['C/ATT'] ?? '0/0')[0] ?? 0),
-                                'attempts' => intval(explode('/', $parsedStats['C/ATT'] ?? '0/0')[1] ?? 0),
+                                'completions' => intval($catt[0] ?? 0),
+                                'attempts' => intval($catt[1] ?? 0),
                                 'yards' => intval($parsedStats['YDS'] ?? 0),
                                 'tds' => intval($parsedStats['TD'] ?? 0),
                                 'interceptions' => intval($parsedStats['INT'] ?? 0),
@@ -157,6 +159,13 @@ if (isset($scoreboard['events'])) {
                                 'interceptions' => intval($parsedStats['INT'] ?? 0),
                             ];
                         }
+                        
+                        // Store raw data for debugging
+                        $allPlayerStats[$playerId]['debug'] = [
+                            'labels' => $labels,
+                            'stats' => $stats,
+                            'parsed' => $parsedStats
+                        ];
                     }
                 }
             }
