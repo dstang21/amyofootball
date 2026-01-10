@@ -111,7 +111,7 @@ foreach ($teams as $team) {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #dc2626 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -172,7 +172,7 @@ foreach ($teams as $team) {
         }
         .nav-tabs button.active {
             background: rgba(255,255,255,0.95);
-            color: #1e3c72;
+            color: #1e3a8a;
         }
         .tab-content {
             display: none;
@@ -277,7 +277,7 @@ foreach ($teams as $team) {
             background: #666;
         }
         .position-badge {
-            background: #667eea;
+            background: #2563eb;
             color: white;
             padding: 4px 12px;
             border-radius: 12px;
@@ -307,10 +307,10 @@ foreach ($teams as $team) {
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .stat-card h3 {
-            color: #1e3c72;
+            color: #1e3a8a;
             margin-bottom: 20px;
             font-size: 1.5rem;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 3px solid #2563eb;
             padding-bottom: 10px;
         }
         .stat-item {
@@ -326,7 +326,7 @@ foreach ($teams as $team) {
             font-weight: 500;
         }
         .stat-value {
-            background: #667eea;
+            background: #2563eb;
             color: white;
             padding: 4px 12px;
             border-radius: 12px;
@@ -340,7 +340,7 @@ foreach ($teams as $team) {
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         .empty-state h2 {
-            color: #1e3c72;
+            color: #1e3a8a;
             margin-bottom: 15px;
         }
         .empty-state p {
@@ -350,7 +350,7 @@ foreach ($teams as $team) {
         .empty-state a {
             display: inline-block;
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             color: white;
             text-decoration: none;
             border-radius: 25px;
@@ -369,7 +369,7 @@ foreach ($teams as $team) {
             border-radius: 30px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             text-decoration: none;
-            color: #1e3c72;
+            color: #1e3a8a;
             font-weight: bold;
             transition: all 0.3s;
         }
@@ -427,16 +427,16 @@ foreach ($teams as $team) {
         .comparison-mode button {
             padding: 10px 20px;
             margin: 5px;
-            border: 2px solid #667eea;
+            border: 2px solid #2563eb;
             background: white;
-            color: #667eea;
+            color: #2563eb;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
         }
         .comparison-mode button:hover {
-            background: #667eea;
+            background: #2563eb;
             color: white;
         }
         .team-card.compare-selected {
@@ -511,7 +511,7 @@ foreach ($teams as $team) {
         .game-score {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #1e3c72;
+            color: #1e3a8a;
         }
         .game-vs {
             font-size: 1.5rem;
