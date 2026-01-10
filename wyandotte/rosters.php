@@ -506,9 +506,8 @@ foreach ($teams as $team) {
         }
     </style>
 </head>
-<body>playerStats')">📊 Live Player Stats</button>
-        <button onclick="showTab('stats')">League Stats</button>
-        <button onclick="showTab('analytics')">'; ?>
+<body>
+    <?php include __DIR__ . '/includes/live-ticker.php'; ?>
     
     <div class="header">
         <h1>&#127944; WYANDOTTE FOOTBALL LEAGUE</h1>
@@ -518,8 +517,9 @@ foreach ($teams as $team) {
     <div class="nav-tabs">
         <button class="active" onclick="showTab('rosters')">All Rosters</button>
         <button onclick="showTab('live')">🔴 Live NFL Scores</button>
-        <button onclick="showTab('stats')">Player Stats</button>
-        <button onclick="showTab('analytics')">League Analytics</button>
+        <button onclick="showTab('playerStats')">📊 Live Player Stats</button>
+        <button onclick="showTab('stats')">League Stats</button>
+        <button onclick="showTab('analytics')">Analytics</button>
     </div>
 
     <!-- Rosters Tab -->
