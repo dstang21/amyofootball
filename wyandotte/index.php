@@ -105,6 +105,29 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
             color: #2a5298;
         }
 
+        .cta-button {
+            display: inline-block;
+            margin: 30px 10px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .cta-button.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
         .footer {
             text-align: center;
             padding: 30px;
@@ -145,6 +168,10 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
             <h2>🏈 Welcome, Bitches! 🏈</h2>
             <p>This is your home for the next few weeks of playoff action.</p>
             <p class="emphasis">Let's see who takes home the championship!</p>
+            <div>
+                <a href="rosters.php" class="cta-button">View All Rosters</a>
+                <a href="manage/teams.php" class="cta-button secondary">Manage Teams</a>
+            </div>
         </div>
     </div>
 
