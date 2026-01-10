@@ -137,8 +137,7 @@ usort($players_by_position['DL_SLOT'], function($a, $b) {
         <div class="nav">
             <a href="../index.php">ΓåÉ Back to League</a>
             <a href="teams.php">Manage Teams</a>
-            <a href="rosters.php">Build Rosters</a>
-        </div>
+            <a href="rosters.php">Build Rosters</a>            <a href="add-player.php">Add Player</a>        </div>
 
         <h1>&#127944; Build Team Roster</h1>
 
