@@ -17,8 +17,8 @@ try {
     echo "Dropping old tables if they exist...\n";
     $pdo->exec("DROP TABLE IF EXISTS wyandotte_scores");
     $pdo->exec("DROP TABLE IF EXISTS wyandotte_rosters");
-    $pdo->exec("DROP TABLE IF EXISTS wyandotte_teams");
     $pdo->exec("DROP TABLE IF EXISTS wyandotte_participants");
+    $pdo->exec("DROP TABLE IF EXISTS wyandotte_teams");
     
     // Execute the SQL
     $pdo->exec($sql);
@@ -28,9 +28,9 @@ try {
     // Verify tables
     echo "Verifying tables...\n";
     
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM wyandotte_participants");
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM wyandotte_teams");
     $result = $stmt->fetch();
-    echo "✓ wyandotte_participants table created - {$result['count']} participants\n";
+    echo "✓ wyandotte_teams table created - {$result['count']} teams\n";
     
     $stmt = $pdo->query("SELECT COUNT(*) as count FROM wyandotte_rosters");
     $result = $stmt->fetch();
