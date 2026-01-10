@@ -115,45 +115,42 @@ if (isset($scoreboard['events'])) {
                             ];
                         }
                         
-                        // Extract stats
-                        $stats = [];
-                        foreach ($athlete['stats'] as $stat) {
-                            $stats[$stat] = $stat;
-                        }
+                        // Extract stats - this is already an indexed array
+                        $stats = $athlete['stats'] ?? [];
                         
                         // Parse stats based on category
                         if ($categoryName === 'passing') {
                             $allPlayerStats[$playerId]['stats']['passing'] = [
-                                'completions' => $stats[0] ?? 0,
-                                'attempts' => $stats[1] ?? 0,
-                                'yards' => $stats[2] ?? 0,
-                                'avg' => $stats[3] ?? 0,
-                                'tds' => $stats[4] ?? 0,
-                                'interceptions' => $stats[5] ?? 0,
+                                'completions' => isset($stats[0]) ? intval($stats[0]) : 0,
+                                'attempts' => isset($stats[1]) ? intval($stats[1]) : 0,
+                                'yards' => isset($stats[2]) ? intval($stats[2]) : 0,
+                                'avg' => isset($stats[3]) ? floatval($stats[3]) : 0,
+                                'tds' => isset($stats[4]) ? intval($stats[4]) : 0,
+                                'interceptions' => isset($stats[5]) ? intval($stats[5]) : 0,
                             ];
                         } elseif ($categoryName === 'rushing') {
                             $allPlayerStats[$playerId]['stats']['rushing'] = [
-                                'attempts' => $stats[0] ?? 0,
-                                'yards' => $stats[1] ?? 0,
-                                'avg' => $stats[2] ?? 0,
-                                'long' => $stats[3] ?? 0,
-                                'tds' => $stats[4] ?? 0,
+                                'attempts' => isset($stats[0]) ? intval($stats[0]) : 0,
+                                'yards' => isset($stats[1]) ? intval($stats[1]) : 0,
+                                'avg' => isset($stats[2]) ? floatval($stats[2]) : 0,
+                                'long' => isset($stats[3]) ? intval($stats[3]) : 0,
+                                'tds' => isset($stats[4]) ? intval($stats[4]) : 0,
                             ];
                         } elseif ($categoryName === 'receiving') {
                             $allPlayerStats[$playerId]['stats']['receiving'] = [
-                                'receptions' => $stats[0] ?? 0,
-                                'yards' => $stats[1] ?? 0,
-                                'avg' => $stats[2] ?? 0,
-                                'long' => $stats[3] ?? 0,
-                                'tds' => $stats[4] ?? 0,
+                                'receptions' => isset($stats[0]) ? intval($stats[0]) : 0,
+                                'yards' => isset($stats[1]) ? intval($stats[1]) : 0,
+                                'avg' => isset($stats[2]) ? floatval($stats[2]) : 0,
+                                'long' => isset($stats[3]) ? intval($stats[3]) : 0,
+                                'tds' => isset($stats[4]) ? intval($stats[4]) : 0,
                             ];
                         } elseif ($categoryName === 'defensive') {
                             $allPlayerStats[$playerId]['stats']['defensive'] = [
-                                'tackles' => $stats[0] ?? 0,
-                                'solo' => $stats[1] ?? 0,
-                                'sacks' => $stats[2] ?? 0,
-                                'interceptions' => $stats[3] ?? 0,
-                                'forced_fumbles' => $stats[4] ?? 0,
+                                'tackles' => isset($stats[0]) ? intval($stats[0]) : 0,
+                                'solo' => isset($stats[1]) ? intval($stats[1]) : 0,
+                                'sacks' => isset($stats[2]) ? floatval($stats[2]) : 0,
+                                'interceptions' => isset($stats[3]) ? intval($stats[3]) : 0,
+                                'forced_fumbles' => isset($stats[4]) ? intval($stats[4]) : 0,
                             ];
                         }
                     }
