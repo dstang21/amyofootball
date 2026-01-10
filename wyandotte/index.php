@@ -170,7 +170,6 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
             <p class="emphasis">Let's see who takes home the championship!</p>
             <div>
                 <a href="rosters.php" class="cta-button">View All Rosters</a>
-                <a href="manage/teams.php" class="cta-button secondary">Manage Teams</a>
             </div>
         </div>
     </div>
