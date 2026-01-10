@@ -617,9 +617,9 @@ foreach ($teams as $team) {
             </div>
         <?php else: ?>
             <!-- Live Scores Leaderboard -->
-            <div id="scoresLeaderboard" style="margin-bottom: 30px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; border: 2px solid rgba(255,255,255,0.2);">
-                <h2 style="text-align: center; color: white; margin-bottom: 20px; font-size: 1.8rem;">🏆 Live Scores</h2>
-                <div id="scoresContent" style="display: grid; gap: 15px;">
+            <div id="scoresLeaderboard" style="margin: 0 auto 30px; max-width: 800px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 15px; padding: 25px; border: 2px solid rgba(255,255,255,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+                <h2 style="text-align: center; color: white; margin-bottom: 25px; font-size: 1.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">🏆 Current Standings</h2>
+                <div id="scoresContent" style="display: flex; flex-direction: column; gap: 10px;">
                     <p style="text-align: center; color: white;">Loading scores...</p>
                 </div>
             </div>
@@ -1247,21 +1247,24 @@ foreach ($teams as $team) {
 
                     // Update leaderboard
                     const scoresHtml = data.team_scores.map((team, index) => {
-                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                        const rank = index + 1;
+                        const isFirst = rank === 1;
                         const pointsColor = team.total_points > 0 ? '#4CAF50' : '#999';
+                        const bgColor = isFirst ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.08)';
+                        const borderColor = isFirst ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.15)';
                         
                         return `
-                            <div style="background: rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 2px solid rgba(255,255,255,0.2);">
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <span style="font-size: 1.5rem; min-width: 40px;">${medal}</span>
-                                    <div>
-                                        <div style="color: white; font-weight: bold; font-size: 1.1rem;">${team.team_name}</div>
-                                        <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">${team.owner_name}</div>
+                            <div style="background: ${bgColor}; padding: 12px 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s;">
+                                <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                                    <span style="color: white; font-weight: bold; font-size: 1.2rem; min-width: 30px; opacity: 0.7;">${rank}</span>
+                                    <div style="flex: 1;">
+                                        <div style="color: white; font-weight: bold; font-size: 1rem;">${team.team_name}</div>
+                                        <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">${team.owner_name}</div>
                                     </div>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div style="color: ${pointsColor}; font-size: 1.8rem; font-weight: bold;">${team.total_points}</div>
-                                    <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">${team.player_count} players</div>
+                                    <div style="color: ${pointsColor}; font-size: 1.5rem; font-weight: bold;">${team.total_points.toFixed(1)}</div>
+                                    <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">${team.player_count} active</div>
                                 </div>
                             </div>
                         `;
