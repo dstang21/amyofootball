@@ -564,10 +564,6 @@ foreach ($teams as $team) {
         </div>
     </div>
 
-    <?php if (isLoggedIn()): ?>
-        <a href="manage/teams.php" class="admin-link">⚙️ Manage League</a>
-    <?php endif; ?>
-
     <script>
         let compareMode = false;
         let selectedTeams = [];
