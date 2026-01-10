@@ -33,8 +33,8 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
         .hero-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            object-position: center top;
+            object-fit: contain;
+            object-position: center;
             opacity: 0.8;
             animation: fadeIn 1s ease-in;
         }
