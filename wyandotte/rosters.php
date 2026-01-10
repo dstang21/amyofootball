@@ -118,20 +118,29 @@ foreach ($teams as $team) {
         .header {
             text-align: center;
             color: white;
-            margin-bottom: 40px;
-            padding: 40px 20px;
+            margin-bottom: 20px;
+            padding: 15px 10px;
             background: rgba(0,0,0,0.2);
-            border-radius: 15px;
+            border-radius: 10px;
             backdrop-filter: blur(10px);
         }
         .header h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         .header p {
-            font-size: 1.2rem;
+            font-size: 0.9rem;
             opacity: 0.9;
+            margin: 0;
+        }
+        @media (min-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
         }
         .nav-tabs {
             display: flex;
@@ -248,6 +257,18 @@ foreach ($teams as $team) {
             font-weight: bold;
             margin-left: auto;
             padding-left: 10px;
+        }
+        .player-points {
+            background: #16a34a;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .player-points.zero {
+            background: #666;
         }
         .position-badge {
             background: #667eea;
@@ -573,8 +594,8 @@ foreach ($teams as $team) {
     <?php include __DIR__ . '/includes/live-ticker.php'; ?>
     
     <div class="header">
-        <h1>&#127944; WYANDOTTE FOOTBALL LEAGUE</h1>
-        <p>Elite Playoff Competition - <?php echo count($teams); ?> Teams Battle</p>
+        <h1>&#127944; WYANDOTTE</h1>
+        <p><?php echo count($teams); ?> Teams</p>
     </div>
 
     <div class="nav-tabs">
@@ -595,6 +616,14 @@ foreach ($teams as $team) {
                 <a href="manage/teams.php">Create Teams</a>
             </div>
         <?php else: ?>
+            <!-- Live Scores Leaderboard -->
+            <div id="scoresLeaderboard" style="margin-bottom: 30px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; border: 2px solid rgba(255,255,255,0.2);">
+                <h2 style="text-align: center; color: white; margin-bottom: 20px; font-size: 1.8rem;">🏆 Live Scores</h2>
+                <div id="scoresContent" style="display: grid; gap: 15px;">
+                    <p style="text-align: center; color: white;">Loading scores...</p>
+                </div>
+            </div>
+            
             <div class="search-box">
                 <input type="text" id="searchPlayer" placeholder="Search for a player..." onkeyup="searchPlayers()">
             </div>
@@ -618,11 +647,14 @@ foreach ($teams as $team) {
                     $colors = $team_colors[$team['id']];
                     $team_initials = strtoupper(substr($team['team_name'], 0, 1) . substr($team['owner_name'], 0, 1));
                 ?>
-                    <div class="team-card" data-team-name="<?php echo strtolower($team['team_name']); ?>">
+                    <div class="team-card" data-team-name="<?php echo strtolower($team['team_name']); ?>" data-team-id="<?php echo $team['id']; ?>">
                         <div class="team-header" style="background: linear-gradient(135deg, <?php echo $colors['primary']; ?> 0%, <?php echo $colors['secondary']; ?> 100%);">
                             <div class="team-logo"><?php echo $team_initials; ?></div>
                             <div class="team-name"><?php echo htmlspecialchars($team['team_name']); ?></div>
                             <div class="team-owner">Owner: <?php echo htmlspecialchars($team['owner_name']); ?></div>
+                            <div class="team-score" id="team-score-<?php echo $team['id']; ?>" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold; color: #fff;">
+                                0.0 pts
+                            </div>
                         </div>
                         <?php if (isset($rosters[$team['id']]) && !empty($rosters[$team['id']])): ?>
                             <ul class="roster-list">
@@ -1109,56 +1141,83 @@ foreach ($teams as $team) {
 
         // Update roster stats inline
         function updateRosterStats() {
+            // First get player stats
             fetch('api/live-player-stats.php')
                 .then(response => response.json())
-                .then(data => {
-                    if (!data.success || !data.players) return;
+                .then(statsData => {
+                    if (!statsData.success || !statsData.players) return;
 
                     // Create lookup by player ID
                     const statsLookup = {};
-                    data.players.forEach(player => {
+                    statsData.players.forEach(player => {
                         statsLookup[player.player_id] = player;
                     });
 
-                    // Update each roster item
-                    document.querySelectorAll('.roster-item').forEach(item => {
-                        const playerId = item.getAttribute('data-player-id');
-                        const statsSpan = item.querySelector('.player-stats');
-                        
-                        if (!playerId || !statsSpan) return;
-                        
-                        const playerStats = statsLookup[playerId];
-                        if (!playerStats) {
-                            statsSpan.innerHTML = '';
-                            item.classList.remove('has-live-stats');
-                            return;
-                        }
+                    // Then get calculated scores
+                    return fetch('api/calculate-scores.php')
+                        .then(response => response.json())
+                        .then(scoresData => {
+                            if (!scoresData.success || !scoresData.team_scores) return;
 
-                        // Build compact stats string
-                        let statText = [];
-                        
-                        if (playerStats.stats.passing) {
-                            const p = playerStats.stats.passing;
-                            statText.push(`${p.yards} PASS YDS, ${p.tds} TD`);
-                        }
-                        if (playerStats.stats.rushing) {
-                            const r = playerStats.stats.rushing;
-                            statText.push(`${r.yards} RUSH YDS, ${r.tds} TD`);
-                        }
-                        if (playerStats.stats.receiving) {
-                            const rec = playerStats.stats.receiving;
-                            statText.push(`${rec.receptions} REC, ${rec.yards} YDS, ${rec.tds} TD`);
-                        }
-                        if (playerStats.stats.defensive) {
-                            const d = playerStats.stats.defensive;
-                            statText.push(`${d.tackles} TKL, ${d.sacks} SCK`);
-                        }
+                            // Create points lookup
+                            const pointsLookup = {};
+                            scoresData.team_scores.forEach(team => {
+                                team.players.forEach(player => {
+                                    pointsLookup[player.player_id] = player.total_points;
+                                });
+                            });
 
-                        if (statText.length > 0) {
-                            statsSpan.innerHTML = statText.join(' | ');
-                            item.classList.add('has-live-stats');
-                        }
-                    });
+                            // Update each roster item
+                            document.querySelectorAll('.roster-item').forEach(item => {
+                                const playerId = item.getAttribute('data-player-id');
+                                const statsSpan = item.querySelector('.player-stats');
+                                const playerStats = statsLookup[playerId];
+
+                                // Remove existing points badge if any
+                                const existingPoints = item.querySelector('.player-points');
+                                if (existingPoints) {
+                                    existingPoints.remove();
+                                }
+
+                                if (!playerStats) {
+                                    statsSpan.innerHTML = '';
+                                    item.classList.remove('has-live-stats');
+                                    return;
+                                }
+
+                                // Build compact stats string
+                                let statText = [];
+                                
+                                if (playerStats.stats.passing) {
+                                    const p = playerStats.stats.passing;
+                                    statText.push(`${p.yards} PASS YDS, ${p.tds} TD`);
+                                }
+                                if (playerStats.stats.rushing) {
+                                    const r = playerStats.stats.rushing;
+                                    statText.push(`${r.yards} RUSH YDS, ${r.tds} TD`);
+                                }
+                                if (playerStats.stats.receiving) {
+                                    const rec = playerStats.stats.receiving;
+                                    statText.push(`${rec.receptions} REC, ${rec.yards} YDS, ${rec.tds} TD`);
+                                }
+                                if (playerStats.stats.defensive) {
+                                    const d = playerStats.stats.defensive;
+                                    statText.push(`${d.tackles} TKL, ${d.sacks} SCK`);
+                                }
+
+                                if (statText.length > 0) {
+                                    statsSpan.innerHTML = statText.join(' | ');
+                                    item.classList.add('has-live-stats');
+                                    
+                                    // Add points badge
+                                    const points = pointsLookup[playerId] || 0;
+                                    const pointsBadge = document.createElement('span');
+                                    pointsBadge.className = 'player-points' + (points === 0 ? ' zero' : '');
+                                    pointsBadge.textContent = points.toFixed(1) + ' pts';
+                                    item.appendChild(pointsBadge);
+                                }
+                            });
+                        });
                 })
                 .catch(error => {
                     console.error('Failed to update roster stats:', error);
@@ -1169,7 +1228,62 @@ foreach ($teams as $team) {
         document.addEventListener('DOMContentLoaded', () => {
             updateRosterStats();
             rosterStatsInterval = setInterval(updateRosterStats, 60000);
+            
+            // Load team scores
+            loadTeamScores();
+            setInterval(loadTeamScores, 60000); // Update every 60 seconds
         });
+
+        // Load team scores
+        function loadTeamScores() {
+            fetch('api/calculate-scores.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success || !data.team_scores || data.team_scores.length === 0) {
+                        document.getElementById('scoresContent').innerHTML = 
+                            '<p style="text-align: center; color: white;">No scores available yet</p>';
+                        return;
+                    }
+
+                    // Update leaderboard
+                    const scoresHtml = data.team_scores.map((team, index) => {
+                        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                        const pointsColor = team.total_points > 0 ? '#4CAF50' : '#999';
+                        
+                        return `
+                            <div style="background: rgba(255,255,255,0.15); padding: 15px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 2px solid rgba(255,255,255,0.2);">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <span style="font-size: 1.5rem; min-width: 40px;">${medal}</span>
+                                    <div>
+                                        <div style="color: white; font-weight: bold; font-size: 1.1rem;">${team.team_name}</div>
+                                        <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">${team.owner_name}</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="color: ${pointsColor}; font-size: 1.8rem; font-weight: bold;">${team.total_points}</div>
+                                    <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">${team.player_count} players</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    document.getElementById('scoresContent').innerHTML = scoresHtml;
+                    
+                    // Update team card scores
+                    data.team_scores.forEach(team => {
+                        const scoreElement = document.getElementById('team-score-' + team.team_id);
+                        if (scoreElement) {
+                            scoreElement.textContent = team.total_points.toFixed(1) + ' pts';
+                            scoreElement.style.color = team.total_points > 0 ? '#4CAF50' : '#fff';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to load scores:', error);
+                    document.getElementById('scoresContent').innerHTML = 
+                        '<p style="text-align: center; color: white;">Error loading scores</p>';
+                });
+        }
 
         // Lightbox functionality
         function openLightbox(imageSrc) {
