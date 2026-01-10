@@ -33,7 +33,8 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
         .hero-image {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            object-position: center top;
             opacity: 0.8;
             animation: fadeIn 1s ease-in;
         }
@@ -142,9 +143,8 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
     <div class="content-section">
         <div class="coming-soon">
             <h2>🏈 Welcome, Bitches! 🏈</h2>
-            <p>The Wyandotte Football League section is under construction.</p>
-            <p class="emphasis">More is coming soon...</p>
-            <p>Get ready for stats, standings, trash talk, and everything you need to dominate the league!</p>
+            <p>This is your home for the next few weeks of playoff action.</p>
+            <p class="emphasis">Let's see who takes home the championship!</p>
         </div>
     </div>
 
