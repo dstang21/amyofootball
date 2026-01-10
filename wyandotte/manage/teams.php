@@ -82,7 +82,7 @@ $teams = $pdo->query("
             <a href="../../admin/dashboard.php">Main Admin</a>
         </div>
 
-        <h1>≡ƒÅê Wyandotte League - Manage Teams</h1>
+        <h1>&#127944; Wyandotte League - Manage Teams</h1>
 
         <?php if (isset($success)): ?>
             <div class="alert alert-success"><?php echo $success; ?></div>

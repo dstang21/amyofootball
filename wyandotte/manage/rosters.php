@@ -130,7 +130,7 @@ foreach ($positions as $pos) {
             <a href="rosters.php">Build Rosters</a>
         </div>
 
-        <h1>≡ƒÅê Build Team Roster</h1>
+        <h1>&#127944; Build Team Roster</h1>
 
         <?php if (isset($success)): ?>
             <div class="alert alert-success"><?php echo $success; ?></div>
