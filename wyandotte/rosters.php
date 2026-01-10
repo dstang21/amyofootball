@@ -412,9 +412,92 @@ foreach ($teams as $team) {
         .team-card {
             animation: fadeIn 0.5s ease-out;
         }
+        .live-games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        .game-card:hover {
+            transform: translateY(-3px);
+        }
+        .game-card.live {
+            border: 2px solid #ef4444;
+            background: linear-gradient(135deg, #fff 0%, #fee2e2 100%);
+        }
+        .game-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        .game-status {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: bold;
+        }
+        .game-status.live {
+            color: #ef4444;
+        }
+        .game-teams {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .game-team {
+            text-align: center;
+            flex: 1;
+        }
+        .game-team-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+        }
+        .game-team-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .game-team-record {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .game-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        .game-vs {
+            font-size: 1.5rem;
+            color: #999;
+            margin: 0 20px;
+        }
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.3; }
+        }
     </style>
 </head>
 <body>
+    <?php include __DIR__ . '/includes/live-ticker.php'; ?>
+    
     <div class="header">
         <h1>&#127944; WYANDOTTE FOOTBALL LEAGUE</h1>
         <p>Elite Playoff Competition - <?php echo count($teams); ?> Teams Battle</p>
@@ -422,6 +505,7 @@ foreach ($teams as $team) {
 
     <div class="nav-tabs">
         <button class="active" onclick="showTab('rosters')">All Rosters</button>
+        <button onclick="showTab('live')">🔴 Live NFL Scores</button>
         <button onclick="showTab('stats')">Player Stats</button>
         <button onclick="showTab('analytics')">League Analytics</button>
     </div>
@@ -481,6 +565,18 @@ foreach ($teams as $team) {
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+    </div>
+
+    <!-- Live NFL Scores Tab -->
+    <div id="live" class="tab-content">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="color: white; font-size: 1.2rem;">Real-time NFL scores update every 60 seconds</p>
+        </div>
+        <div class="live-games-grid" id="liveGamesGrid">
+            <div style="text-align: center; color: white; grid-column: 1/-1;">
+                <p>Loading live games...</p>
+            </div>
+        </div>
     </div>
 
     <!-- Stats Tab -->
@@ -567,6 +663,7 @@ foreach ($teams as $team) {
     <script>
         let compareMode = false;
         let selectedTeams = [];
+        let liveScoresInterval;
 
         function showTab(tabName) {
             // Hide all tabs
@@ -584,6 +681,19 @@ foreach ($teams as $team) {
             
             // Add active to clicked button
             event.target.classList.add('active');
+
+            // Load live scores if that tab is selected
+            if (tabName === 'live') {
+                updateLiveScores();
+                if (!liveScoresInterval) {
+                    liveScoresInterval = setInterval(updateLiveScores, 60000);
+                }
+            } else {
+                if (liveScoresInterval) {
+                    clearInterval(liveScoresInterval);
+                    liveScoresInterval = null;
+                }
+            }
         }
 
         function searchPlayers() {
@@ -717,6 +827,68 @@ foreach ($teams as $team) {
                 observer.observe(card);
             });
         });
+
+        // Live scores update function
+        function updateLiveScores() {
+            fetch('api/live-scores.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success || !data.games || data.games.length === 0) {
+                        document.getElementById('liveGamesGrid').innerHTML = 
+                            '<div style="text-align: center; color: white; grid-column: 1/-1;"><p>No games scheduled today</p></div>';
+                        return;
+                    }
+
+                    const gamesHtml = data.games.map(game => {
+                        const liveClass = game.isLive ? 'live' : '';
+                        const liveIndicator = game.isLive ? '<span class="live-indicator"></span>' : '';
+                        
+                        let statusText = '';
+                        if (game.isLive) {
+                            statusText = `<span class="game-status live">${liveIndicator}LIVE - ${game.clock} Q${game.period}</span>`;
+                        } else if (game.isCompleted) {
+                            statusText = '<span class="game-status">FINAL</span>';
+                        } else if (game.isScheduled) {
+                            const gameTime = new Date(game.date);
+                            statusText = `<span class="game-status">${gameTime.toLocaleString('en-US', {
+                                weekday: 'short',
+                                hour: 'numeric',
+                                minute: '2-digit'
+                            })}</span>`;
+                        }
+
+                        return `
+                            <div class="game-card ${liveClass}">
+                                <div class="game-header">
+                                    ${statusText}
+                                </div>
+                                <div class="game-teams">
+                                    <div class="game-team">
+                                        <img src="${game.awayTeam.logo}" alt="${game.awayTeam.name}" class="game-team-logo" onerror="this.style.display='none'">
+                                        <div class="game-team-name">${game.awayTeam.name}</div>
+                                        <div class="game-team-record">${game.awayTeam.record}</div>
+                                        <div class="game-score">${game.awayTeam.score}</div>
+                                    </div>
+                                    <div class="game-vs">@</div>
+                                    <div class="game-team">
+                                        <img src="${game.homeTeam.logo}" alt="${game.homeTeam.name}" class="game-team-logo" onerror="this.style.display='none'">
+                                        <div class="game-team-name">${game.homeTeam.name}</div>
+                                        <div class="game-team-record">${game.homeTeam.record}</div>
+                                        <div class="game-score">${game.homeTeam.score}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    document.getElementById('liveGamesGrid').innerHTML = gamesHtml;
+                })
+                .catch(error => {
+                    console.error('Failed to update live scores:', error);
+                    document.getElementById('liveGamesGrid').innerHTML = 
+                        '<div style="text-align: center; color: white; grid-column: 1/-1;"><p>Error loading scores. Please try again.</p></div>';
+                });
+        }
     </script>
 </body>
 </html>

@@ -155,6 +155,8 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
     </style>
 </head>
 <body>
+    <?php include __DIR__ . '/includes/live-ticker.php'; ?>
+    
     <div class="hero-banner">
         <img src="<?php echo htmlspecialchars($heroImage); ?>" alt="Wyandotte Football League" class="hero-image">
         <div class="hero-overlay">
