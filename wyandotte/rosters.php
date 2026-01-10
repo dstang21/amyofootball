@@ -144,29 +144,35 @@ foreach ($teams as $team) {
         }
         .nav-tabs {
             display: flex;
-            gap: 10px;
+            gap: 0;
             margin-bottom: 30px;
             flex-wrap: wrap;
             justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 5px;
+            backdrop-filter: blur(10px);
         }
         .nav-tabs button {
-            padding: 12px 30px;
-            background: white;
+            padding: 12px 24px;
+            background: transparent;
             border: none;
-            border-radius: 25px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .nav-tabs button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
         }
         .nav-tabs button.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: rgba(255,255,255,0.95);
+            color: #1e3c72;
         }
         .tab-content {
             display: none;
@@ -599,16 +605,16 @@ foreach ($teams as $team) {
     </div>
 
     <div class="nav-tabs">
-        <button class="active" onclick="showTab('rosters')">All Rosters</button>
-        <button onclick="showTab('live')">🔴 Live NFL Scores</button>
-        <button onclick="showTab('playerStats')">📊 Live Player Stats</button>
-        <button onclick="showTab('gallery')">📸 Gallery</button>
+        <button class="active" onclick="showTab('live')">Live Scores</button>
+        <button onclick="showTab('rosters')">Rosters</button>
+        <button onclick="showTab('playerStats')">Player Stats</button>
+        <button onclick="showTab('gallery')">Gallery</button>
         <button onclick="showTab('stats')">League Stats</button>
         <button onclick="showTab('analytics')">Analytics</button>
     </div>
 
-    <!-- Rosters Tab -->
-    <div id="rosters" class="tab-content active">
+    <!-- Live Scores Tab -->
+    <div id="live" class="tab-content active">
         <?php if (empty($teams)): ?>
             <div class="empty-state">
                 <h2>No Teams Yet!</h2>
@@ -624,6 +630,27 @@ foreach ($teams as $team) {
                 </div>
             </div>
             
+            <!-- NFL Games Section -->
+            <div style="margin-top: 40px;">
+                <h3 style="text-align: center; color: white; margin-bottom: 20px; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px;">NFL Games</h3>
+                <div class="live-games-grid" id="liveGamesGrid">
+                    <div style="text-align: center; color: white; grid-column: 1/-1;">
+                        <p>Loading live games...</p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Rosters Tab -->
+    <div id="rosters" class="tab-content">
+        <?php if (empty($teams)): ?>
+            <div class="empty-state">
+                <h2>No Teams Yet!</h2>
+                <p>Get started by creating teams and building rosters.</p>
+                <a href="manage/teams.php">Create Teams</a>
+            </div>
+        <?php else: ?>
             <div class="search-box">
                 <input type="text" id="searchPlayer" placeholder="Search for a player..." onkeyup="searchPlayers()">
             </div>
@@ -674,18 +701,6 @@ foreach ($teams as $team) {
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-    </div>
-
-    <!-- Live NFL Scores Tab -->
-    <div id="live" class="tab-content">
-        <div style="text-align: center; margin-bottom: 20px;">
-            <p style="color: white; font-size: 1.2rem;">Real-time NFL scores update every 60 seconds</p>
-        </div>
-        <div class="live-games-grid" id="liveGamesGrid">
-            <div style="text-align: center; color: white; grid-column: 1/-1;">
-                <p>Loading live games...</p>
-            </div>
-        </div>
     </div>
 
     <!-- Live Player Stats Tab -->
