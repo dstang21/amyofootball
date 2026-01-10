@@ -1264,22 +1264,22 @@ foreach ($teams as $team) {
                     const scoresHtml = data.team_scores.map((team, index) => {
                         const rank = index + 1;
                         const isFirst = rank === 1;
-                        const pointsColor = team.total_points > 0 ? '#4CAF50' : '#999';
-                        const bgColor = isFirst ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.08)';
-                        const borderColor = isFirst ? 'rgba(255,215,0,0.5)' : 'rgba(255,255,255,0.15)';
+                        const pointsColor = team.total_points > 0 ? '#6ee7b7' : '#d1d5db';
+                        const bgColor = isFirst ? 'rgba(20,20,30,0.95)' : 'rgba(30,30,45,0.9)';
+                        const borderColor = isFirst ? '#fbbf24' : 'rgba(100,100,120,0.4)';
                         
                         return `
                             <div style="background: ${bgColor}; padding: 12px 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s;">
                                 <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
-                                    <span style="color: white; font-weight: bold; font-size: 1.2rem; min-width: 30px; opacity: 0.7;">${rank}</span>
+                                    <span style="color: #e5e7eb; font-weight: bold; font-size: 1.2rem; min-width: 30px;">${rank}</span>
                                     <div style="flex: 1;">
-                                        <div style="color: white; font-weight: bold; font-size: 1rem;">${team.team_name}</div>
-                                        <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">${team.owner_name}</div>
+                                        <div style="color: #f3f4f6; font-weight: bold; font-size: 1rem;">${team.team_name}</div>
+                                        <div style="color: #d1d5db; font-size: 0.85rem;">${team.owner_name}</div>
                                     </div>
                                 </div>
                                 <div style="text-align: right;">
                                     <div style="color: ${pointsColor}; font-size: 1.5rem; font-weight: bold;">${team.total_points.toFixed(1)}</div>
-                                    <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">${team.player_count} active</div>
+                                    <div style="color: #9ca3af; font-size: 0.75rem;">${team.player_count} active</div>
                                 </div>
                             </div>
                         `;
