@@ -17,7 +17,7 @@ $rosters = [];
 foreach ($teams as $team) {
     $stmt = $pdo->prepare("
         SELECT r.*, p.full_name, p.id as player_id, pt.position, pt.team_id as nfl_team_id, 
-               nfl.name as nfl_team_name, nfl.city as nfl_team_city
+               nfl.name as nfl_team_name, nfl.abbreviation as nfl_team_abbr
         FROM wyandotte_rosters r
         JOIN players p ON r.player_id = p.id
         JOIN player_teams pt ON p.id = pt.player_id
@@ -33,7 +33,7 @@ foreach ($teams as $team) {
 $player_stats = $pdo->query("
     SELECT p.id, p.full_name, COUNT(r.id) as selection_count, 
            GROUP_CONCAT(DISTINCT pt.position) as positions,
-           nfl.city as nfl_team_city, nfl.name as nfl_team_name
+           nfl.abbreviation as nfl_team_abbr, nfl.name as nfl_team_name
     FROM wyandotte_rosters r
     JOIN players p ON r.player_id = p.id
     LEFT JOIN player_teams pt ON p.id = pt.player_id
@@ -52,7 +52,7 @@ $position_dist = $pdo->query("
 
 // Get NFL team distribution
 $nfl_team_dist = $pdo->query("
-    SELECT nfl.city, nfl.name, COUNT(DISTINCT r.id) as player_count
+    SELECT nfl.name, nfl.abbreviation, COUNT(DISTINCT r.id) as player_count
     FROM wyandotte_rosters r
     JOIN players p ON r.player_id = p.id
     JOIN player_teams pt ON p.id = pt.player_id
@@ -566,7 +566,7 @@ foreach ($teams as $team) {
                                 <li class="roster-item" data-player-name="<?php echo strtolower($player['full_name']); ?>" data-player-id="<?php echo $player['player_id']; ?>">
                                     <span class="position-badge"><?php echo htmlspecialchars($player['position']); ?></span>
                                     <span class="player-name"><?php echo htmlspecialchars($player['full_name']); ?></span>
-                                    <span class="nfl-team"><?php echo htmlspecialchars($player['nfl_team_city'] ?? ''); ?></span>
+                                    <span class="nfl-team"><?php echo htmlspecialchars($player['nfl_team_abbr'] ?? ''); ?></span>
                                     <span class="player-stats" id="stats-<?php echo $player['player_id']; ?>"></span>
                                     </li>
                                 <?php endforeach; ?>
@@ -637,7 +637,7 @@ foreach ($teams as $team) {
                 <h3>Top NFL Teams</h3>
                 <?php foreach ($nfl_team_dist as $nfl_team): ?>
                     <div class="stat-item">
-                        <span class="stat-label"><?php echo htmlspecialchars($nfl_team['city'] . ' ' . $nfl_team['name']); ?></span>
+                        <span class="stat-label"><?php echo htmlspecialchars($nfl_team['name']); ?> <small>(<?php echo htmlspecialchars($nfl_team['abbreviation']); ?>)</small></span>
                         <span class="stat-value"><?php echo $nfl_team['player_count']; ?></span>
                     </div>
                 <?php endforeach; ?>
@@ -675,7 +675,7 @@ foreach ($teams as $team) {
                         <div class="stat-item">
                             <span class="stat-label">
                                 <?php echo htmlspecialchars($player['full_name']); ?>
-                                <br><small style="color: #999;"><?php echo htmlspecialchars($player['nfl_team_city'] ?? 'Unknown'); ?> - <?php echo htmlspecialchars($player['positions']); ?></small>
+                                <br><small style="color: #999;"><?php echo htmlspecialchars($player['nfl_team_abbr'] ?? 'FA'); ?> - <?php echo htmlspecialchars($player['positions']); ?></small>
                             </span>
                             <span class="stat-value"><?php echo $player['selection_count']; ?></span>
                         </div>
