@@ -504,6 +504,69 @@ foreach ($teams as $team) {
             0%, 50%, 100% { opacity: 1; }
             25%, 75% { opacity: 0.3; }
         }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -518,6 +581,7 @@ foreach ($teams as $team) {
         <button class="active" onclick="showTab('rosters')">All Rosters</button>
         <button onclick="showTab('live')">🔴 Live NFL Scores</button>
         <button onclick="showTab('playerStats')">📊 Live Player Stats</button>
+        <button onclick="showTab('gallery')">📸 Gallery</button>
         <button onclick="showTab('stats')">League Stats</button>
         <button onclick="showTab('analytics')">Analytics</button>
     </div>
@@ -601,6 +665,27 @@ foreach ($teams as $team) {
             <div style="text-align: center; color: white; grid-column: 1/-1;">
                 <p>Loading player stats...</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Gallery Tab -->
+    <div id="gallery" class="tab-content">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="color: white; font-size: 1.2rem;">League Photo Gallery</p>
+        </div>
+        <div class="gallery-grid">
+            <?php
+            $imageDir = __DIR__ . '/images/';
+            $images = glob($imageDir . '*.{jpg,jpeg,png,gif}', GLOB_BRACE);
+            foreach ($images as $imagePath):
+                $filename = basename($imagePath);
+                $name = ucfirst(pathinfo($filename, PATHINFO_FILENAME));
+            ?>
+                <div class="gallery-item" onclick="openLightbox('images/<?php echo htmlspecialchars($filename); ?>')">
+                    <img src="images/<?php echo htmlspecialchars($filename); ?>" alt="<?php echo htmlspecialchars($name); ?>">
+                    <div class="gallery-caption"><?php echo htmlspecialchars($name); ?></div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 
@@ -1085,6 +1170,31 @@ foreach ($teams as $team) {
             updateRosterStats();
             rosterStatsInterval = setInterval(updateRosterStats, 60000);
         });
+
+        // Lightbox functionality
+        function openLightbox(imageSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = imageSrc;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        // Close lightbox on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
     </script>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img id="lightbox-img" src="" alt="Full size image">
+    </div>
 </body>
 </html>
