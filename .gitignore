@@ -1,32 +1,82 @@
-# Config files with sensitive data
-config.php
+# Environment Configuration (MOST IMPORTANT!)
+.env
+.env.local
+.env.*.local
 
-# Database dumps
-*.sql
+# Dependencies
+/vendor/
+/node_modules/
 
-# IDE files
-.vscode/
-.idea/
-*.sublime-*
+# Composer
+composer.phar
 
-# OS files
-.DS_Store
-Thumbs.db
-desktop.ini
+# Backups and Legacy Files
+/legacy-backups/
+*.backup
+*.bak
 
 # Logs
+/storage/logs/
 *.log
 error_log
 
-# Temporary files
+# Database Dumps
+*.sql
+*.sqlite
+*.db
+
+# Cache
+/storage/cache/
+/cache/
+*.cache
+
+# Session Files
+/storage/sessions/
+/sessions/
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+.phpintel/
+
+# Build artifacts
+/dist/
+/build/
+/public/build/
+/public/hot
+/public/storage
+
+# Temporary Files
 *.tmp
 *.temp
-*.swp
-*~
+/tmp/
 
-# Dependencies (if using Composer)
-vendor/
-composer.lock
+# Testing
+/coverage/
+.phpunit.result.cache
+
+# Package Files
+*.zip
+*.tar
+*.tar.gz
+*.rar
 
 # User uploaded content (if applicable)
 uploads/

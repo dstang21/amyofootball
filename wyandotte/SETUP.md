@@ -25,7 +25,7 @@ The migration creates 3 tables:
 
 ## Admin Access
 
-Access the Wyandotte admin at: `/wyandotte/admin/teams.php`
+Access the Wyandotte management at: `/wyandotte/manage/teams.php`
 
 ### Features:
 1. **Team Management** - Create up to 10 teams with owner names

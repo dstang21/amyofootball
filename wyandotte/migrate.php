@@ -35,8 +35,8 @@ try {
     
     echo "\n✓ MIGRATION COMPLETE!\n";
     echo "\nNext steps:\n";
-    echo "1. Visit /wyandotte/admin/teams.php to create teams\n";
-    echo "2. Visit /wyandotte/admin/rosters.php to build rosters\n";
+    echo "1. Visit /wyandotte/manage/teams.php to create teams\n";
+    echo "2. Visit /wyandotte/manage/rosters.php to build rosters\n";
     
 } catch (PDOException $e) {
     echo "✗ Migration failed: " . $e->getMessage() . "\n";

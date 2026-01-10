@@ -76,7 +76,7 @@ $teams = $pdo->query("
 <body>
     <div class="container">
         <div class="nav">
-            <a href="index.php">← Back to League</a>
+            <a href="../index.php">← Back to League</a>
             <a href="teams.php">Manage Teams</a>
             <a href="rosters.php">Build Rosters</a>
             <a href="../../admin/dashboard.php">Main Admin</a>
