@@ -158,8 +158,9 @@ include 'admin-nav.php';
 <div class="container">
     <div class="admin-header" style="background: var(--dark-color); color: white; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
         <h1>Manage Players</h1>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <a href="assign-teams.php" class="btn btn-primary">Assign Teams</a>
+            <a href="match-sleeper-players.php" class="btn btn-warning">🔗 Match Sleeper Players</a>
             <a href="dashboard.php" class="btn btn-secondary">← Back to Dashboard</a>
         </div>
     </div>

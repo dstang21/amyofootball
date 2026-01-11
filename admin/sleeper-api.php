@@ -19,6 +19,31 @@ if (!isAdmin()) {
 
 require_once 'SleeperController.php';
 
+// Handle GET requests for search
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $action = $_GET['action'] ?? '';
+    
+    if ($action === 'search_players') {
+        $query = $_GET['query'] ?? '';
+        if (strlen($query) < 2) {
+            echo json_encode(['success' => false, 'message' => 'Query too short']);
+            exit();
+        }
+        
+        try {
+            $controller = new SleeperController();
+            $players = $controller->searchPlayers($query);
+            ob_clean();
+            echo json_encode(['success' => true, 'players' => $players]);
+        } catch (Exception $e) {
+            ob_clean();
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit();
+    }
+}
+
+// Handle POST requests for sync
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Method not allowed']);

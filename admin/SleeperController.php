@@ -688,6 +688,20 @@ class SleeperController
         ]);
     }
 
+    public function searchPlayers($query)
+    {
+        $sql = "SELECT player_id, first_name, last_name, position, team, age, college
+                FROM sleeper_players 
+                WHERE first_name LIKE ? OR last_name LIKE ? OR CONCAT(first_name, ' ', last_name) LIKE ?
+                ORDER BY search_rank ASC, last_name, first_name 
+                LIMIT 20";
+        
+        $searchTerm = "%$query%";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     private function apiCall($endpoint)
     {
         $url = "https://api.sleeper.app/v1" . $endpoint;
