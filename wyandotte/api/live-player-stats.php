@@ -78,6 +78,7 @@ $playsProcessed = 0;
 $playsInserted = 0;
 $playsSkipped = 0;
 $playErrors = [];
+$driveTeamDebug = []; // Debug info for drive teams
 
 // Process each game
 if (isset($scoreboard['events'])) {
@@ -125,6 +126,13 @@ if (isset($scoreboard['events'])) {
                              $drive['team']['abbrev'] ?? 
                              $drive['displayName'] ?? 
                              null;
+                
+                // Log drive team data for debugging
+                $driveTeamDebug[] = [
+                    'drive_team' => $driveTeam,
+                    'team_data' => $drive['team'] ?? null,
+                    'description' => $drive['description'] ?? null
+                ];
                 
                 // If still no team, try to extract from description or skip
                 if (!$driveTeam && isset($drive['description'])) {
@@ -360,7 +368,8 @@ $result = [
         'inserted' => $playsInserted,
         'skipped' => $playsSkipped,
         'errors' => $playErrors,
-        'missing_players' => $missingPlayers
+        'missing_players' => $missingPlayers,
+        'drive_team_debug' => array_slice($driveTeamDebug, 0, 5) // Show first 5 drives
     ]
 ];
 

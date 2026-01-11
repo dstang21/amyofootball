@@ -1916,6 +1916,9 @@ foreach ($teams as $team) {
                             console.log('👤 MISSING PLAYERS (not in database):', sync.missing_players);
                             console.log('📋 Players to add:', Object.keys(sync.missing_players).join(', '));
                         }
+                        if (sync.drive_team_debug && sync.drive_team_debug.length > 0) {
+                            console.log('🏟️ DRIVE TEAM DATA:', sync.drive_team_debug);
+                        }
                     }
                     
                     if (!statsData.success || !statsData.players) return;
