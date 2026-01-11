@@ -70,8 +70,8 @@ foreach ($rosteredPlayers as $player) {
     }
 }
 
-// Get existing play descriptions to avoid duplicates
-$stmt = $pdo->query("SELECT description FROM wyandotte_plays");
+// Get existing play descriptions from the last 4 hours to avoid duplicates
+$stmt = $pdo->query("SELECT description FROM wyandotte_plays WHERE play_time >= NOW() - INTERVAL 4 HOUR");
 $existingPlays = array_flip($stmt->fetchAll(PDO::FETCH_COLUMN));
 
 $playsProcessed = 0;
