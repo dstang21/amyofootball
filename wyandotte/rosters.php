@@ -737,6 +737,30 @@ foreach ($teams as $team) {
             border-color: #f97316;
             transform: rotate(90deg);
         }
+
+        /* Chat styles */
+        .avatar-option:hover {
+            background: rgba(249,115,22,0.2);
+            transform: scale(1.1);
+        }
+        .avatar-option[style*="border-color: rgb(249, 115, 22)"] {
+            background: rgba(249,115,22,0.3);
+            box-shadow: 0 0 15px rgba(249,115,22,0.5);
+        }
+        #chatMessages::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chatMessages::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        #chatMessages::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 10px;
+        }
+        #chatMessages::-webkit-scrollbar-thumb:hover {
+            background: #ea580c;
+        }
     </style>
 </head>
 <body>
@@ -769,9 +793,21 @@ foreach ($teams as $team) {
         <button class="active" onclick="showTab('live')">Live Scores</button>
         <button onclick="showTab('rosters')">Rosters</button>
         <button onclick="showTab('playerStats')">Player Stats</button>
+        <button onclick="showTab('chat')">Chat</button>
         <button onclick="showTab('gallery')">Gallery</button>
         <button onclick="showTab('stats')">League Stats</button>
         <button onclick="showTab('analytics')">Analytics</button>
+    </div>
+
+    <!-- Latest Chat Preview -->
+    <div id="latestChatPreview" style="max-width: 800px; margin: 0 auto 20px; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 15px; border: 1px solid rgba(249,115,22,0.3); display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="color: #f97316; margin: 0; font-size: 1rem;">💬 Latest Chat</h3>
+            <a href="#" onclick="showTab('chat'); return false;" style="color: #fbbf24; text-decoration: none; font-size: 0.9rem;">View All →</a>
+        </div>
+        <div id="latestChatContent" style="color: #cbd5e1; font-size: 0.9rem;">
+            Loading...
+        </div>
     </div>
 
     <!-- Live Scores Tab -->
@@ -978,12 +1014,67 @@ foreach ($teams as $team) {
         </div>
     </div>
 
+    <!-- Chat Tab -->
+    <div id="chat" class="tab-content">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <!-- Avatar Selection -->
+            <div style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(249,115,22,0.3);">
+                <h3 style="color: #f97316; margin-bottom: 15px;">Select Your Avatar</h3>
+                <div id="avatarSelection" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <div class="avatar-option" data-avatar="football" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🏈</div>
+                    <div class="avatar-option" data-avatar="helmet" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⛑️</div>
+                    <div class="avatar-option" data-avatar="trophy" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🏆</div>
+                    <div class="avatar-option" data-avatar="fire" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🔥</div>
+                    <div class="avatar-option" data-avatar="star" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⭐</div>
+                    <div class="avatar-option" data-avatar="lightning" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⚡</div>
+                    <div class="avatar-option" data-avatar="rocket" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🚀</div>
+                    <div class="avatar-option" data-avatar="crown" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👑</div>
+                </div>
+            </div>
+
+            <!-- Chat Form -->
+            <div style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(249,115,22,0.3);">
+                <input type="text" id="chatUsername" placeholder="Enter your name" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; margin-bottom: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <textarea id="chatMessage" placeholder="Type your message..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; resize: vertical; min-height: 60px;"></textarea>
+                    <button onclick="sendChatMessage()" style="padding: 12px 30px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(249,115,22,0.4);">Send</button>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 8px;">Max 500 characters</p>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chatMessages" style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; min-height: 400px; max-height: 600px; overflow-y: auto; border: 1px solid rgba(249,115,22,0.3);">
+                <p style="text-align: center; color: #94a3b8;">Loading messages...</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         let compareMode = false;
         let selectedTeams = [];
         let liveScoresInterval;
         let livePlayerStatsInterval;
         let rosterStatsInterval;
+        let selectedAvatar = 'football';
+        let chatUsername = localStorage.getItem('chatUsername') || '';
+        let chatRefreshInterval;
+
+        // Avatar selection
+        document.querySelectorAll('.avatar-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.avatar-option').forEach(o => o.style.borderColor = 'transparent');
+                this.style.borderColor = '#f97316';
+                selectedAvatar = this.getAttribute('data-avatar');
+            });
+        });
+
+        // Set first avatar as selected by default
+        document.querySelector('.avatar-option').style.borderColor = '#f97316';
+
+        // Load username from localStorage
+        if (chatUsername) {
+            document.getElementById('chatUsername').value = chatUsername;
+        }
 
         function showTab(tabName) {
             // Hide all tabs
@@ -1040,6 +1131,171 @@ foreach ($teams as $team) {
                     rosterStatsInterval = null;
                 }
             }
+
+            // Load chat messages if chat tab is selected
+            if (tabName === 'chat') {
+                loadChatMessages();
+                if (!chatRefreshInterval) {
+                    chatRefreshInterval = setInterval(() => {
+                        loadChatMessages();
+                        updateLatestChat();
+                    }, 60000);
+                }
+            } else {
+                if (chatRefreshInterval) {
+                    clearInterval(chatRefreshInterval);
+                    chatRefreshInterval = null;
+                }
+            }
+        }
+
+        // Chat functions
+        function loadChatMessages() {
+            fetch('api/chat.php?action=get&limit=50')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayChatMessages(data.messages);
+                    }
+                })
+                .catch(error => console.error('Error loading chat:', error));
+        }
+
+        function displayChatMessages(messages) {
+            const container = document.getElementById('chatMessages');
+            if (messages.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #94a3b8;">No messages yet. Be the first to chat!</p>';
+                return;
+            }
+
+            // Reverse to show oldest first
+            messages.reverse();
+
+            const avatarMap = {
+                'football': '🏈',
+                'helmet': '⛑️',
+                'trophy': '🏆',
+                'fire': '🔥',
+                'star': '⭐',
+                'lightning': '⚡',
+                'rocket': '🚀',
+                'crown': '👑'
+            };
+
+            container.innerHTML = messages.map(msg => `
+                <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; margin-bottom: 10px; border-left: 3px solid #f97316;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <span style="font-size: 1.5rem;">${avatarMap[msg.avatar] || '🏈'}</span>
+                        <span style="color: #fbbf24; font-weight: bold;">${escapeHtml(msg.username)}</span>
+                        <span style="color: #94a3b8; font-size: 0.85rem;">(IP: ${msg.user_ip})</span>
+                        <span style="color: #64748b; font-size: 0.85rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
+                    </div>
+                    <div style="color: #cbd5e1; line-height: 1.5;">${escapeHtml(msg.message)}</div>
+                </div>
+            `).join('');
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const username = document.getElementById('chatUsername').value.trim();
+            const message = document.getElementById('chatMessage').value.trim();
+
+            if (!username) {
+                alert('Please enter your name');
+                return;
+            }
+
+            if (!message) {
+                alert('Please enter a message');
+                return;
+            }
+
+            if (message.length > 500) {
+                alert('Message is too long (max 500 characters)');
+                return;
+            }
+
+            // Save username to localStorage
+            localStorage.setItem('chatUsername', username);
+            chatUsername = username;
+
+            const formData = new FormData();
+            formData.append('action', 'post');
+            formData.append('username', username);
+            formData.append('message', message);
+            formData.append('avatar', selectedAvatar);
+
+            fetch('api/chat.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('chatMessage').value = '';
+                    loadChatMessages();
+                    updateLatestChat();
+                } else {
+                    alert('Error sending message: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                alert('Error sending message');
+            });
+        }
+
+        function updateLatestChat() {
+            fetch('api/chat.php?action=latest')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.message) {
+                        const msg = data.message;
+                        const avatarMap = {
+                            'football': '🏈',
+                            'helmet': '⛑️',
+                            'trophy': '🏆',
+                            'fire': '🔥',
+                            'star': '⭐',
+                            'lightning': '⚡',
+                            'rocket': '🚀',
+                            'crown': '👑'
+                        };
+                        
+                        const content = `
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                <span style="font-size: 1.2rem;">${avatarMap[msg.avatar] || '🏈'}</span>
+                                <span style="color: #fbbf24; font-weight: bold;">${escapeHtml(msg.username)}</span>
+                                <span style="color: #94a3b8; font-size: 0.85rem;">(IP: ${msg.user_ip})</span>
+                                <span style="color: #64748b; font-size: 0.85rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
+                            </div>
+                            <div style="color: #cbd5e1;">${escapeHtml(msg.message)}</div>
+                        `;
+                        
+                        document.getElementById('latestChatContent').innerHTML = content;
+                        document.getElementById('latestChatPreview').style.display = 'block';
+                    }
+                })
+                .catch(error => console.error('Error loading latest chat:', error));
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            if (seconds < 60) return 'just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            return Math.floor(seconds / 86400) + 'd ago';
         }
 
         function searchPlayers() {
@@ -1408,6 +1664,10 @@ foreach ($teams as $team) {
             // Load team scores
             loadTeamScores();
             setInterval(loadTeamScores, 60000); // Update every 60 seconds
+
+            // Load latest chat
+            updateLatestChat();
+            setInterval(updateLatestChat, 60000); // Update every 60 seconds
         });
 
         // Load team scores
