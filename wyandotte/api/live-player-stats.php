@@ -55,6 +55,11 @@ foreach ($rosteredPlayers as $player) {
 $stmt = $pdo->query("SELECT description FROM wyandotte_plays");
 $existingPlays = array_flip($stmt->fetchAll(PDO::FETCH_COLUMN));
 
+$playsProcessed = 0;
+$playsInserted = 0;
+$playsSkipped = 0;
+$playErrors = [];
+
 // Process each game
 if (isset($scoreboard['events'])) {
     foreach ($scoreboard['events'] as $event) {
@@ -95,6 +100,7 @@ if (isset($scoreboard['events'])) {
         // Process scoring plays while we have the data
         if (isset($boxScore['scoringPlays'])) {
             foreach ($boxScore['scoringPlays'] as $scoringPlay) {
+                $playsProcessed++;
                 $playId = $scoringPlay['id'] ?? null;
                 
                 // Get play details from drives
@@ -112,12 +118,18 @@ if (isset($scoreboard['events'])) {
                     }
                 }
                 
-                if (!$playDetails) continue;
+                if (!$playDetails) {
+                    $playErrors[] = "No play details for play ID: $playId";
+                    continue;
+                }
                 
                 $description = $playDetails['text'] ?? '';
                 
                 // Skip if we've already recorded this play
-                if (isset($existingPlays[$description])) continue;
+                if (isset($existingPlays[$description])) {
+                    $playsSkipped++;
+                    continue;
+                }
                 
                 // Extract player name from play text
                 $playerId = null;
@@ -131,7 +143,11 @@ if (isset($scoreboard['events'])) {
                 }
                 
                 // Skip if player not on any roster
-                if (!$playerId) continue;
+                if (!$playerId) {
+                    $playsSkipped++;
+                    $playErrors[] = "Player not found in roster: $description";
+                    continue;
+                }
                 
                 // Determine play type and points
                 $playType = 'Play';
@@ -177,8 +193,11 @@ if (isset($scoreboard['events'])) {
                     ");
                     $stmt->execute([$playerId, $playType, $description, $points, $gameContext]);
                     $existingPlays[$description] = true;
+                    $playsInserted++;
                 } catch (PDOException $e) {
                     // Skip duplicate or error
+                    $playsSkipped++;
+                    $playErrors[] = "DB Error: " . $e->getMessage();
                 }
             }
         }
@@ -277,7 +296,13 @@ $result = [
     'success' => true,
     'timestamp' => time(),
     'player_count' => count($allPlayerStats),
-    'players' => array_values($allPlayerStats)
+    'players' => array_values($allPlayerStats),
+    'plays_sync' => [
+        'processed' => $playsProcessed,
+        'inserted' => $playsInserted,
+        'skipped' => $playsSkipped,
+        'errors' => $playErrors
+    ]
 ];
 
 // Cache the result

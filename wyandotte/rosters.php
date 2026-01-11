@@ -1813,6 +1813,15 @@ foreach ($teams as $team) {
             fetch('api/live-player-stats.php')
                 .then(response => response.json())
                 .then(data => {
+                    // Log plays sync info to console
+                    if (data.plays_sync) {
+                        const sync = data.plays_sync;
+                        console.log(`🏈 PLAYS SYNC: Processed=${sync.processed}, Inserted=${sync.inserted}, Skipped=${sync.skipped}`);
+                        if (sync.errors && sync.errors.length > 0) {
+                            console.warn('Play Sync Errors:', sync.errors);
+                        }
+                    }
+                    
                     if (!data.success || !data.players || data.players.length === 0) {
                         document.getElementById('livePlayerStatsGrid').innerHTML = 
                             '<div style="text-align: center; color: white; grid-column: 1/-1;"><p>No live stats available yet</p></div>';
