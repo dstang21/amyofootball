@@ -883,11 +883,15 @@ foreach ($teams as $team) {
     <!-- Latest Chat Preview -->
     <div id="latestChatPreview" style="max-width: 800px; margin: 0 auto 20px; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 15px; border: 1px solid rgba(249,115,22,0.3); display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 style="color: #f97316; margin: 0; font-size: 1rem;">💬 Latest Chat</h3>
-            <a href="#" onclick="showTab('chat'); return false;" style="color: #fbbf24; text-decoration: none; font-size: 0.9rem;">View All →</a>
+            <h3 style="color: #f97316; margin: 0; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Latest Chat</h3>
+            <a href="#" onclick="showTab('chat'); return false;" style="color: #fbbf24; text-decoration: none; font-size: 0.75rem;">View All →</a>
         </div>
-        <div id="latestChatContent" style="color: #cbd5e1; font-size: 0.9rem;">
+        <div id="latestChatContent" style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 12px;">
             Loading...
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="quickChatMessage" placeholder="Send a quick message..." style="flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 0.9rem;" onkeypress="if(event.key==='Enter') sendQuickChat()">
+            <button onclick="sendQuickChat()" style="padding: 8px 16px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Send</button>
         </div>
     </div>
 
@@ -1189,10 +1193,36 @@ foreach ($teams as $team) {
         let chatRefreshInterval;
         let avatarChosen = sessionStorage.getItem('avatarChosen') === 'true';
 
+        // Default names list
+        const defaultNames = [
+            'Unwanted Stalker',
+            'Retarded Voyeur',
+            'Anonymous Dick',
+            'Secret Loser',
+            'Unknown Homo',
+            'Unidentified Flying Penis',
+            'Faceless Fred',
+            'Incognito Eskimo',
+            'One Dumb Fuck',
+            'Nameless Moron',
+            'Fart Knocker',
+            'John Cena',
+            'Someone That I Used To Know'
+        ];
+
         // Generate user ID if not exists
         if (!chatUserId) {
             chatUserId = Math.random().toString(36).substring(2, 8);
             localStorage.setItem('chatUserId', chatUserId);
+        }
+
+        // Assign default name if user doesn't have one
+        if (!chatUsername) {
+            // Use first 6 chars of user ID as seed for name index
+            const seed = parseInt(chatUserId.substring(0, 6), 36);
+            const nameIndex = seed % defaultNames.length;
+            chatUsername = defaultNames[nameIndex];
+            localStorage.setItem('chatUsername', chatUsername);
         }
 
         const avatarMap = {
@@ -1411,6 +1441,52 @@ foreach ($teams as $team) {
             container.scrollTop = container.scrollHeight;
         }
 
+        function sendQuickChat() {
+            const message = document.getElementById('quickChatMessage').value.trim();
+            
+            if (!message) {
+                return;
+            }
+            
+            if (message.length > 500) {
+                alert('Message is too long (max 500 characters)');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', 'post');
+            formData.append('username', chatUsername);
+            formData.append('message', message);
+            formData.append('avatar', selectedAvatar);
+            formData.append('user_id', chatUserId);
+            
+            fetch('api/chat.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.user_id) {
+                        chatUserId = data.user_id;
+                        localStorage.setItem('chatUserId', chatUserId);
+                    }
+                    document.getElementById('quickChatMessage').value = '';
+                    updateLatestChat();
+                    // Also update full chat if on that tab
+                    if (document.getElementById('chat').classList.contains('active')) {
+                        loadChatMessages();
+                    }
+                } else {
+                    alert('Error sending message: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                alert('Error sending message');
+            });
+        }
+
         function sendChatMessage() {
             const username = document.getElementById('chatUsername').value.trim();
             const message = document.getElementById('chatMessage').value.trim();
@@ -1469,13 +1545,12 @@ foreach ($teams as $team) {
                         const msg = data.message;
                         
                         const content = `
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                                 <span style="font-size: 1.2rem;">${avatarMap[msg.avatar] || '🏈'}</span>
-                                <span style="color: #fbbf24; font-weight: bold;">${escapeHtml(msg.username)}</span>
-                                <span style="color: #94a3b8; font-size: 0.75rem;">#${msg.user_ip}</span>
-                                <span style="color: #64748b; font-size: 0.85rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
+                                <span style="color: #fbbf24; font-weight: bold; font-size: 0.9rem;">${escapeHtml(msg.username)}</span>
+                                <span style="color: #64748b; font-size: 0.75rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
                             </div>
-                            <div style="color: #cbd5e1;">${escapeHtml(msg.message)}</div>
+                            <div style="color: #cbd5e1; font-size: 0.9rem;">${escapeHtml(msg.message)}</div>
                         `;
                         
                         document.getElementById('latestChatContent').innerHTML = content;
