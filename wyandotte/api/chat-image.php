@@ -10,7 +10,7 @@ $filename = $_GET['name'];
 // Sanitize filename
 $filename = preg_replace('/[^a-zA-Z0-9_-]/', '', $filename);
 
-$imageDir = dirname(__DIR__) . '/chat-images/';
+$imageDir = dirname(__DIR__) . '/images/';
 $extensions = ['png', 'jpg', 'jpeg', 'gif'];
 
 foreach ($extensions as $ext) {
@@ -18,7 +18,7 @@ foreach ($extensions as $ext) {
     if (file_exists($filepath)) {
         echo json_encode([
             'success' => true,
-            'url' => 'chat-images/' . $filename . '.' . $ext,
+            'url' => 'images/' . $filename . '.' . $ext,
             'extension' => $ext
         ]);
         exit;
