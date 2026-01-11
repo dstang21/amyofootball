@@ -184,32 +184,15 @@ if (isset($scoreboard['events'])) {
                     }
                 }
                 
-                // If no roster match, auto-create player in database
+                // If no roster match, track as missing (auto-add disabled)
                 if (!$playerId) {
                     // Use the name from start of play
                     $foundName = $playStartName ?? 'Unknown Player';
                     $playerName = $foundName;
+                    $missingPlayers[$foundName] = 'NOT FOUND - ADD MANUALLY';
                     
-                    // Parse name (e.g., "J.Love" -> first: "J", last: "Love")
-                    $nameParts = explode('.', $foundName);
-                    $firstName = $nameParts[0] ?? 'Unknown';
-                    $lastName = $nameParts[1] ?? 'Player';
-                    $fullName = $firstName . '. ' . $lastName;
-                    
-                    // Insert new player into database
-                    try {
-                        $insertStmt = $pdo->prepare("
-                            INSERT INTO players (first_name, last_name, full_name)
-                            VALUES (?, ?, ?)
-                        ");
-                        $insertStmt->execute([$firstName, $lastName, $fullName]);
-                        $playerId = $pdo->lastInsertId();
-                        $playerName = $fullName;
-                        $missingPlayers[$foundName] = 'AUTO-ADDED';
-                    } catch (PDOException $e) {
-                        // If duplicate or error, track it
-                        $missingPlayers[$foundName] = 'ERROR: ' . $e->getMessage();
-                    }
+                    // Skip this play since player doesn't exist
+                    continue;
                 }
                 
                 // Determine play type and points
