@@ -1232,17 +1232,9 @@ foreach ($teams as $team) {
             // Add active to clicked button
             event.target.classList.add('active');
 
-            // Load live scores if that tab is selected
+            // Live scores always run in background - just refresh when viewing tab
             if (tabName === 'live') {
                 updateLiveScores();
-                if (!liveScoresInterval) {
-                    liveScoresInterval = setInterval(updateLiveScores, 60000);
-                }
-            } else {
-                if (liveScoresInterval) {
-                    clearInterval(liveScoresInterval);
-                    liveScoresInterval = null;
-                }
             }
 
             // Load live player stats if that tab is selected
@@ -1258,17 +1250,9 @@ foreach ($teams as $team) {
                 }
             }
 
-            // Update roster stats if on rosters tab
+            // Roster stats always run in background - just refresh when viewing tab
             if (tabName === 'rosters') {
                 updateRosterStats();
-                if (!rosterStatsInterval) {
-                    rosterStatsInterval = setInterval(updateRosterStats, 60000);
-                }
-            } else {
-                if (rosterStatsInterval) {
-                    clearInterval(rosterStatsInterval);
-                    rosterStatsInterval = null;
-                }
             }
 
             // Load chat messages if chat tab is selected
@@ -1786,6 +1770,25 @@ foreach ($teams as $team) {
             // Load latest chat
             updateLatestChat();
             setInterval(updateLatestChat, 60000); // Update every 60 seconds
+
+            // Always update live scores regardless of tab
+            updateLiveScores();
+            setInterval(updateLiveScores, 60000); // Update every 60 seconds
+
+            // Reload ticker periodically
+            setInterval(() => {
+                fetch(window.location.href)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTicker = doc.querySelector('.live-ticker-container');
+                        const currentTicker = document.querySelector('.live-ticker-container');
+                        if (newTicker && currentTicker) {
+                            currentTicker.innerHTML = newTicker.innerHTML;
+                        }
+                    });
+            }, 60000); // Update every 60 seconds
         });
 
         // Load team scores
