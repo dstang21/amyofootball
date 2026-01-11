@@ -1483,67 +1483,106 @@ foreach ($teams as $team) {
         let currentTeamScores = null;
 
         function openTeamModal(teamId) {
-            if (!currentTeamScores) return;
-            
-            const team = currentTeamScores.find(t => t.team_id === teamId);
-            if (!team) return;
-
-            document.getElementById('modalTeamName').textContent = team.team_name;
-            document.getElementById('modalOwnerName').textContent = 'Owner: ' + team.owner_name;
-            document.getElementById('modalTotalScore').textContent = team.total_points.toFixed(1);
-
-            // Build players list
-            let playersHtml = '';
-            if (team.players && team.players.length > 0) {
-                team.players.forEach(player => {
-                    let statsHtml = [];
-                    
-                    // Passing stats
-                    if (player.breakdown.passing) {
-                        const p = player.breakdown.passing;
-                        statsHtml.push(`<strong>Passing:</strong> ${p.yards.value} YDS (${p.yards.points} pts), ${p.tds.value} TD (${p.tds.points} pts), ${p.ints.value} INT (${p.ints.points} pts)`);
-                    }
-                    
-                    // Rushing stats
-                    if (player.breakdown.rushing) {
-                        const r = player.breakdown.rushing;
-                        statsHtml.push(`<strong>Rushing:</strong> ${r.yards.value} YDS (${r.yards.points} pts), ${r.tds.value} TD (${r.tds.points} pts)`);
-                    }
-                    
-                    // Receiving stats
-                    if (player.breakdown.receiving) {
-                        const rec = player.breakdown.receiving;
-                        statsHtml.push(`<strong>Receiving:</strong> ${rec.receptions.value} REC (${rec.receptions.points} pts), ${rec.yards.value} YDS (${rec.yards.points} pts), ${rec.tds.value} TD (${rec.tds.points} pts)`);
-                    }
-                    
-                    // Defensive stats
-                    if (player.breakdown.defensive) {
-                        const d = player.breakdown.defensive;
-                        statsHtml.push(`<strong>Defense:</strong> ${d.tackles.value} TKL (${d.tackles.points} pts), ${d.sacks.value} SCK (${d.sacks.points} pts), ${d.ints.value} INT (${d.ints.points} pts)`);
-                    }
-
-                    const liveIndicator = player.is_live ? '<span style="color: #ef4444; font-weight: bold;"> 🔴 LIVE</span>' : '';
-                    
-                    playersHtml += `
-                        <div class="modal-player-item">
-                            <div class="modal-player-header">
-                                <div>
-                                    <span class="modal-player-name">${player.name}</span>
-                                    <span class="modal-player-team">${player.team} - ${player.position}</span>
-                                    ${liveIndicator}
-                                </div>
-                                <span class="modal-player-points">${player.total_points.toFixed(1)}</span>
-                            </div>
-                            ${statsHtml.length > 0 ? `<div class="modal-player-stats">${statsHtml.join('<br>')}</div>` : '<div class="modal-player-stats">No stats yet</div>'}
-                        </div>
-                    `;
-                });
-            } else {
-                playersHtml = '<p style="text-align: center; color: #94a3b8;">No players on this roster yet</p>';
-            }
-
-            document.getElementById('modalPlayersList').innerHTML = playersHtml;
+            // Show loading state
+            document.getElementById('modalTeamName').textContent = 'Loading...';
+            document.getElementById('modalOwnerName').textContent = '';
+            document.getElementById('modalTotalScore').textContent = '0.0';
+            document.getElementById('modalPlayersList').innerHTML = '<p style="text-align: center; color: #94a3b8;">Loading roster...</p>';
             document.getElementById('teamModal').classList.add('active');
+
+            // Fetch full roster
+            Promise.all([
+                fetch(`api/team-roster.php?team_id=${teamId}`).then(r => r.json()),
+                fetch('api/calculate-scores.php').then(r => r.json())
+            ]).then(([rosterData, scoresData]) => {
+                if (!rosterData.success) {
+                    document.getElementById('modalPlayersList').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading roster</p>';
+                    return;
+                }
+
+                const team = rosterData.team;
+                const roster = rosterData.roster;
+
+                // Find team scores
+                const teamScores = scoresData.success && scoresData.team_scores 
+                    ? scoresData.team_scores.find(t => t.team_id === teamId) 
+                    : null;
+
+                // Create lookup for player scores
+                const playerScoresLookup = {};
+                if (teamScores && teamScores.players) {
+                    teamScores.players.forEach(player => {
+                        playerScoresLookup[player.player_id] = player;
+                    });
+                }
+
+                // Update modal header
+                document.getElementById('modalTeamName').textContent = team.team_name;
+                document.getElementById('modalOwnerName').textContent = 'Owner: ' + team.owner_name;
+                document.getElementById('modalTotalScore').textContent = teamScores ? teamScores.total_points.toFixed(1) : '0.0';
+
+                // Build players list from full roster
+                let playersHtml = '';
+                if (roster && roster.length > 0) {
+                    roster.forEach(rosterPlayer => {
+                        const playerScore = playerScoresLookup[rosterPlayer.player_id];
+                        const points = playerScore ? playerScore.total_points : 0;
+                        const isLive = playerScore ? playerScore.is_live : false;
+                        
+                        let statsHtml = [];
+                        
+                        if (playerScore && playerScore.breakdown) {
+                            // Passing stats
+                            if (playerScore.breakdown.passing) {
+                                const p = playerScore.breakdown.passing;
+                                statsHtml.push(`<strong>Passing:</strong> ${p.yards.value} YDS (${p.yards.points} pts), ${p.tds.value} TD (${p.tds.points} pts), ${p.ints.value} INT (${p.ints.points} pts)`);
+                            }
+                            
+                            // Rushing stats
+                            if (playerScore.breakdown.rushing) {
+                                const r = playerScore.breakdown.rushing;
+                                statsHtml.push(`<strong>Rushing:</strong> ${r.yards.value} YDS (${r.yards.points} pts), ${r.tds.value} TD (${r.tds.points} pts)`);
+                            }
+                            
+                            // Receiving stats
+                            if (playerScore.breakdown.receiving) {
+                                const rec = playerScore.breakdown.receiving;
+                                statsHtml.push(`<strong>Receiving:</strong> ${rec.receptions.value} REC (${rec.receptions.points} pts), ${rec.yards.value} YDS (${rec.yards.points} pts), ${rec.tds.value} TD (${rec.tds.points} pts)`);
+                            }
+                            
+                            // Defensive stats
+                            if (playerScore.breakdown.defensive) {
+                                const d = playerScore.breakdown.defensive;
+                                statsHtml.push(`<strong>Defense:</strong> ${d.tackles.value} TKL (${d.tackles.points} pts), ${d.sacks.value} SCK (${d.sacks.points} pts), ${d.ints.value} INT (${d.ints.points} pts)`);
+                            }
+                        }
+
+                        const liveIndicator = isLive ? '<span style="color: #ef4444; font-weight: bold;"> 🔴 LIVE</span>' : '';
+                        const pointsColor = points > 0 ? '#fbbf24' : '#9ca3af';
+                        
+                        playersHtml += `
+                            <div class="modal-player-item">
+                                <div class="modal-player-header">
+                                    <div>
+                                        <span class="modal-player-name">${rosterPlayer.full_name}</span>
+                                        <span class="modal-player-team">${rosterPlayer.nfl_team_abbr || 'FA'} - ${rosterPlayer.position}</span>
+                                        ${liveIndicator}
+                                    </div>
+                                    <span class="modal-player-points" style="color: ${pointsColor};">${points.toFixed(1)}</span>
+                                </div>
+                                ${statsHtml.length > 0 ? `<div class="modal-player-stats">${statsHtml.join('<br>')}</div>` : '<div class="modal-player-stats">No stats yet</div>'}
+                            </div>
+                        `;
+                    });
+                } else {
+                    playersHtml = '<p style="text-align: center; color: #94a3b8;">No players on this roster yet</p>';
+                }
+
+                document.getElementById('modalPlayersList').innerHTML = playersHtml;
+            }).catch(error => {
+                console.error('Error loading team details:', error);
+                document.getElementById('modalPlayersList').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading roster</p>';
+            });
         }
 
         function closeTeamModal(event) {
