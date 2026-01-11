@@ -1115,8 +1115,15 @@ foreach ($teams as $team) {
         let rosterStatsInterval;
         let selectedAvatar = localStorage.getItem('chatAvatar') || 'football';
         let chatUsername = localStorage.getItem('chatUsername') || '';
+        let chatUserId = localStorage.getItem('chatUserId') || '';
         let chatRefreshInterval;
         let avatarChosen = sessionStorage.getItem('avatarChosen') === 'true';
+
+        // Generate user ID if not exists
+        if (!chatUserId) {
+            chatUserId = Math.random().toString(36).substring(2, 8);
+            localStorage.setItem('chatUserId', chatUserId);
+        }
 
         const avatarMap = {
             'football': '🏈',
@@ -1299,7 +1306,7 @@ foreach ($teams as $team) {
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                         <span style="font-size: 1.5rem;">${avatarMap[msg.avatar] || '🏈'}</span>
                         <span style="color: #fbbf24; font-weight: bold;">${escapeHtml(msg.username)}</span>
-                        <span style="color: #94a3b8; font-size: 0.85rem;">(IP: ${msg.user_ip})</span>
+                        <span style="color: #94a3b8; font-size: 0.75rem;">#${msg.user_ip}</span>
                         <span style="color: #64748b; font-size: 0.85rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
                     </div>
                     <div style="color: #cbd5e1; line-height: 1.5;">${escapeHtml(msg.message)}</div>
@@ -1338,6 +1345,7 @@ foreach ($teams as $team) {
             formData.append('username', username);
             formData.append('message', message);
             formData.append('avatar', selectedAvatar);
+            formData.append('user_id', chatUserId);
 
             fetch('api/chat.php', {
                 method: 'POST',
@@ -1370,7 +1378,7 @@ foreach ($teams as $team) {
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                                 <span style="font-size: 1.2rem;">${avatarMap[msg.avatar] || '🏈'}</span>
                                 <span style="color: #fbbf24; font-weight: bold;">${escapeHtml(msg.username)}</span>
-                                <span style="color: #94a3b8; font-size: 0.85rem;">(IP: ${msg.user_ip})</span>
+                                <span style="color: #94a3b8; font-size: 0.75rem;">#${msg.user_ip}</span>
                                 <span style="color: #64748b; font-size: 0.85rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
                             </div>
                             <div style="color: #cbd5e1;">${escapeHtml(msg.message)}</div>

@@ -4,11 +4,13 @@ ob_start();
 header('Content-Type: application/json');
 require_once dirname(__DIR__, 2) . '/config.php';
 
-// Get short IP (last segment only)
-function getShortIp() {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    $parts = explode('.', $ip);
-    return end($parts); // Return last segment only
+// Generate or get user ID
+function getUserId($providedId = null) {
+    if ($providedId && preg_match('/^[a-z0-9]{6}$/', $providedId)) {
+        return $providedId;
+    }
+    // Generate random 6 character ID
+    return substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 6);
 }
 
 try {
@@ -19,6 +21,7 @@ try {
         $username = trim($_POST['username'] ?? 'Anonymous');
         $message = trim($_POST['message'] ?? '');
         $avatar = $_POST['avatar'] ?? 'football';
+        $userId = getUserId($_POST['user_id'] ?? null);
         
         if (empty($message)) {
             ob_clean();
@@ -33,10 +36,10 @@ try {
         }
         
         $stmt = $pdo->prepare("INSERT INTO wyandotte_chat (username, user_ip, avatar, message) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$username, getShortIp(), $avatar, $message]);
+        $stmt->execute([$username, $userId, $avatar, $message]);
         
         ob_clean();
-        echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+        echo json_encode(['success' => true, 'id' => $pdo->lastInsertId(), 'user_id' => $userId]);
         
     } elseif ($action === 'get') {
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
