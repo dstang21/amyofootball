@@ -715,7 +715,7 @@ foreach ($teams as $team) {
         .team-modal-content {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             border-radius: 20px;
-            max-width: 900px;
+            max-width: 600px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
@@ -724,7 +724,7 @@ foreach ($teams as $team) {
         }
         .team-modal-header {
             background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            padding: 30px;
+            padding: 20px;
             border-radius: 20px 20px 0 0;
             position: sticky;
             top: 0;
@@ -732,35 +732,29 @@ foreach ($teams as $team) {
         }
         .team-modal-header h2 {
             color: white;
-            margin: 0 0 10px 0;
-            font-size: 2rem;
+            margin: 0;
+            font-size: 1.4rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .team-modal-header p {
             color: rgba(255,255,255,0.9);
-            margin: 0;
-            font-size: 1.1rem;
+            margin: 8px 0 0 0;
+            font-size: 0.95rem;
         }
         .team-modal-score {
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            text-align: center;
+            display: none;
         }
-        .team-modal-score-label {
-            color: rgba(255,255,255,0.8);
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-        .team-modal-score-value {
+        .team-modal-score-inline {
             color: #fbbf24;
-            font-size: 2.5rem;
+            font-size: 1.6rem;
             font-weight: bold;
-            text-shadow: 0 2px 8px rgba(251,191,36,0.5);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .team-modal-body {
-            padding: 30px;
+            padding: 20px;
         }
         .modal-player-item {
             background: rgba(0,0,0,0.3);
@@ -901,13 +895,12 @@ foreach ($teams as $team) {
     <div id="teamModal" class="team-modal" onclick="closeTeamModal(event)">
         <div class="team-modal-content" onclick="event.stopPropagation()">
             <span class="modal-close" onclick="closeTeamModal()">&times;</span>
-            <div class="team-modal-header">
-                <h2 id="modalTeamName">Team Name</h2>
+            <div class="team-modal-header" id="modalHeaderWithBg">
+                <h2 id="modalTeamName">
+                    <span>Team Name</span>
+                    <span class="team-modal-score-inline" id="modalTotalScore">0.0</span>
+                </h2>
                 <p id="modalOwnerName">Owner Name</p>
-                <div class="team-modal-score">
-                    <div class="team-modal-score-label">Total Points</div>
-                    <div class="team-modal-score-value" id="modalTotalScore">0.0</div>
-                </div>
             </div>
             <div class="team-modal-body" id="modalPlayersList">
                 Loading...
@@ -2329,9 +2322,8 @@ foreach ($teams as $team) {
 
         function openTeamModal(teamId) {
             // Show loading state
-            document.getElementById('modalTeamName').textContent = 'Loading...';
+            document.getElementById('modalTeamName').innerHTML = '<span>Loading...</span><span class="team-modal-score-inline" id="modalTotalScore">0.0</span>';
             document.getElementById('modalOwnerName').textContent = '';
-            document.getElementById('modalTotalScore').textContent = '0.0';
             document.getElementById('modalPlayersList').innerHTML = '<p style="text-align: center; color: #94a3b8;">Loading roster...</p>';
             document.getElementById('teamModal').classList.add('active');
 
@@ -2361,10 +2353,24 @@ foreach ($teams as $team) {
                     });
                 }
 
-                // Update modal header
-                document.getElementById('modalTeamName').textContent = team.team_name;
+                // Update modal header with team logo background
+                const modalHeader = document.getElementById('modalHeaderWithBg');
+                if (team.logo) {
+                    modalHeader.style.backgroundImage = `url('${team.logo}')`;
+                    modalHeader.style.backgroundSize = 'cover';
+                    modalHeader.style.backgroundPosition = 'center';
+                    modalHeader.style.backgroundRepeat = 'no-repeat';
+                    modalHeader.style.position = 'relative';
+                    
+                    // Add overlay for better text readability
+                    const overlay = 'linear-gradient(135deg, rgba(249,115,22,0.92) 0%, rgba(234,88,12,0.92) 100%)';
+                    modalHeader.style.background = `${overlay}, url('${team.logo}')`;
+                    modalHeader.style.backgroundSize = 'auto, cover';
+                    modalHeader.style.backgroundPosition = 'auto, center';
+                }
+                
+                document.getElementById('modalTeamName').innerHTML = `<span>${team.team_name}</span><span class="team-modal-score-inline">${teamScores ? teamScores.total_points.toFixed(1) : '0.0'}</span>`;
                 document.getElementById('modalOwnerName').textContent = 'Owner: ' + team.owner_name;
-                document.getElementById('modalTotalScore').textContent = teamScores ? teamScores.total_points.toFixed(1) : '0.0';
 
                 // Build players list from full roster
                 let playersHtml = '';
