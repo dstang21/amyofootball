@@ -88,6 +88,15 @@ $unmatched_query = $pdo->query("
 ");
 $unmatched_players = $unmatched_query->fetchAll();
 
+// Get all sleeper players for dropdown
+$sleeper_players_query = $pdo->query("
+    SELECT player_id, first_name, last_name, position, team, college, age
+    FROM sleeper_players
+    WHERE position IS NOT NULL
+    ORDER BY last_name, first_name
+");
+$sleeper_players = $sleeper_players_query->fetchAll();
+
 // Get matched count
 $matched_count = $pdo->query("SELECT COUNT(*) FROM players WHERE sleeper_id IS NOT NULL AND sleeper_id != ''")->fetchColumn();
 $total_count = $pdo->query("SELECT COUNT(*) FROM players")->fetchColumn();
@@ -199,36 +208,43 @@ include 'admin-nav.php';
                             
                             <!-- Matching Form -->
                             <div>
-                                <form method="POST" class="match-form" style="display: flex; gap: 10px; align-items: flex-start;">
+                                <form method="POST" class="match-form">
                                     <input type="hidden" name="manual_match" value="1">
                                     <input type="hidden" name="player_id" value="<?php echo $player['id']; ?>">
                                     
-                                    <div style="flex: 1;">
-                                        <input type="text" 
-                                               name="sleeper_id" 
-                                               id="sleeper_id_<?php echo $player['id']; ?>"
-                                               placeholder="Enter Sleeper Player ID"
-                                               class="sleeper-search-input"
-                                               style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 5px;"
-                                               required
-                                               autocomplete="off">
-                                        <div id="suggestions_<?php echo $player['id']; ?>" 
-                                             class="search-suggestions" 
-                                             style="display: none; position: absolute; z-index: 1000; background: white; border: 2px solid #d1d5db; border-top: none; border-radius: 0 0 5px 5px; max-height: 300px; overflow-y: auto; width: calc(100% - 120px);"></div>
+                                    <div style="margin-bottom: 10px;">
+                                        <select name="sleeper_id" 
+                                                id="sleeper_select_<?php echo $player['id']; ?>"
+                                                class="sleeper-select"
+                                                style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 5px; font-size: 0.95em;"
+                                                required>
+                                            <option value="">-- Select Sleeper Player --</option>
+                                            <?php foreach ($sleeper_players as $sp): ?>
+                                                <option value="<?php echo $sp['player_id']; ?>"
+                                                        data-search="<?php echo strtolower($sp['first_name'] . ' ' . $sp['last_name'] . ' ' . $sp['position'] . ' ' . $sp['team']); ?>">
+                                                    <?php echo htmlspecialchars($sp['first_name'] . ' ' . $sp['last_name']); ?>
+                                                    - <?php echo $sp['position'] ?: '??'; ?>
+                                                    - <?php echo $sp['team'] ?: 'FA'; ?>
+                                                    <?php if ($sp['college']): ?>
+                                                        (<?php echo htmlspecialchars(substr($sp['college'], 0, 20)); ?>)
+                                                    <?php endif; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
                                     </div>
                                     
-                                    <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
-                                        Match Player
-                                    </button>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                                            Match Player
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-secondary" 
+                                                onclick="autoFillSelect('<?php echo addslashes($player['full_name']); ?>', <?php echo $player['id']; ?>)"
+                                                style="white-space: nowrap;">
+                                            🔍 Auto-Find
+                                        </button>
+                                    </div>
                                 </form>
-                                
-                                <div style="margin-top: 10px;">
-                                    <button type="button" 
-                                            class="btn btn-secondary btn-sm" 
-                                            onclick="searchSleeper('<?php echo addslashes($player['full_name']); ?>', <?php echo $player['id']; ?>)">
-                                        🔍 Search Sleeper
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -240,68 +256,63 @@ include 'admin-nav.php';
             <div class="card-body" style="text-align: center; padding: 40px;">
                 <div style="font-size: 4em; margin-bottom: 20px;">🎉</div>
                 <h3 style="color: #16a34a; margin-bottom: 10px;">All Players Matched!</h3>
-                <p style="color: #6b7280;">Every player in your database is now linked to Sleeper.</p>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
-<script>
-function searchSleeper(playerName, playerId) {
-    const searchTerm = playerName;
-    const suggestionsDiv = document.getElementById('suggestions_' + playerId);
-    const inputField = document.getElementById('sleeper_id_' + playerId);
+         autoFillSelect(playerName, playerId) {
+    const select = document.getElementById('sleeper_select_' + playerId);
+    const searchTerm = playerName.toLowerCase();
     
-    if (searchTerm.length < 2) {
-        suggestionsDiv.style.display = 'none';
-        return;
+    // Try to find exact match first
+    for (let i = 0; i < select.options.length; i++) {
+        const option = select.options[i];
+        const optionText = option.textContent.toLowerCase();
+        
+        if (optionText.includes(searchTerm)) {
+            select.selectedIndex = i;
+            select.style.background = '#fef3c7';
+            setTimeout(() => {
+                select.style.background = '';
+            }, 1000);
+            return;
+        }
     }
     
-    // Show loading
-    suggestionsDiv.innerHTML = '<div style="padding: 10px; color: #6b7280;">Searching...</div>';
-    suggestionsDiv.style.display = 'block';
+    // Try partial match on last name
+    const lastName = searchTerm.split(' ').pop();
+    for (let i = 0; i < select.options.length; i++) {
+        const option = select.options[i];
+        const optionText = option.textContent.toLowerCase();
+        
+        if (optionText.includes(lastName)) {
+            select.selectedIndex = i;
+            select.style.background = '#fef3c7';
+            setTimeout(() => {
+                select.style.background = '';
+            }, 1000);
+            return;
+        }
+    }
     
-    // Fetch suggestions
-    fetch(`sleeper-api.php?action=search_players&query=${encodeURIComponent(searchTerm)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.players && data.players.length > 0) {
-                let html = '';
-                data.players.forEach(player => {
-                    const fullName = (player.first_name || '') + ' ' + (player.last_name || '');
-                    const team = player.team || 'FA';
-                    const pos = player.position || '??';
-                    
-                    html += `
-                        <div class="suggestion-item" 
-                             style="padding: 10px; cursor: pointer; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;"
-                             onclick="selectSleeperPlayer('${player.player_id}', '${fullName.replace(/'/g, "\\'")}', ${playerId})"
-                             onmouseover="this.style.background='#f3f4f6'"
-                             onmouseout="this.style.background='white'">
-                            <div>
-                                <strong>${fullName}</strong>
-                                <span style="margin-left: 10px; color: #6b7280;">${team} - ${pos}</span>
-                            </div>
-                            <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 3px; font-size: 0.85em;">${player.player_id}</code>
-                        </div>
-                    `;
-                });
-                suggestionsDiv.innerHTML = html;
-            } else {
-                suggestionsDiv.innerHTML = '<div style="padding: 10px; color: #dc2626;">No matches found</div>';
+    alert('No matching Sleeper player found. Please select manually.');
+}
+
+// Make select boxes searchable
+document.addEventListener('DOMContentLoaded', function() {
+    const selects = document.querySelectorAll('.sleeper-select');
+    selects.forEach(select => {
+        select.addEventListener('keydown', function(e) {
+            // Allow typing to search
+            if (e.key.length === 1) {
+                const searchTerm = e.key.toLowerCase();
+                for (let i = 0; i < this.options.length; i++) {
+                    const option = this.options[i];
+                    const text = option.textContent.toLowerCase();
+                    if (text.startsWith(searchTerm)) {
+                        this.selectedIndex = i;
+                        break;
+                    }
+                }
             }
-        })
-        .catch(error => {
-            suggestionsDiv.innerHTML = '<div style="padding: 10px; color: #dc2626;">Error searching</div>';
-            console.error('Search error:', error);
         });
-}
-
-function selectSleeperPlayer(sleeperId, playerName, playerId) {
-    document.getElementById('sleeper_id_' + playerId).value = sleeperId;
-    document.getElementById('suggestions_' + playerId).style.display = 'none';
-}
-
+    });
 // Close suggestions when clicking outside
 document.addEventListener('click', function(e) {
     if (!e.target.classList.contains('sleeper-search-input')) {
