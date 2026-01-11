@@ -257,6 +257,8 @@ foreach ($teams as $team) {
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
         }
         .team-card:hover {
             transform: translateY(-5px);
@@ -269,6 +271,21 @@ foreach ($teams as $team) {
             text-align: center;
             position: relative;
             overflow: hidden;
+        }
+        .team-header::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200%;
+            height: 200%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
         }
         .team-header::before {
             content: '';
@@ -293,6 +310,8 @@ foreach ($teams as $team) {
             font-size: 2.5rem;
             border: 3px solid rgba(255,255,255,0.3);
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
         .team-logo img {
             width: 100%;
@@ -303,10 +322,18 @@ foreach ($teams as $team) {
             font-size: 1.8rem;
             font-weight: bold;
             margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
         }
         .team-owner {
             font-size: 1rem;
-            opacity: 0.9;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            font-weight: 500;
         }
         .roster-list {
             list-style: none;
@@ -971,7 +998,7 @@ foreach ($teams as $team) {
                     $colors = $team_colors[$team['id']];
                     $team_initials = strtoupper(substr($team['team_name'], 0, 1) . substr($team['owner_name'], 0, 1));
                 ?>
-                    <div class="team-card" data-team-name="<?php echo strtolower($team['team_name']); ?>" data-team-id="<?php echo $team['id']; ?>">
+                    <div class="team-card" data-team-name="<?php echo strtolower($team['team_name']); ?>" data-team-id="<?php echo $team['id']; ?>" data-team-logo="<?php echo !empty($team['logo']) ? htmlspecialchars($team['logo']) : ''; ?>">
                         <div class="team-header" style="background: linear-gradient(135deg, <?php echo $colors['primary']; ?> 0%, <?php echo $colors['secondary']; ?> 100%);">
                             <div class="team-logo">
                                 <?php if (!empty($team['logo'])): ?>
@@ -982,7 +1009,7 @@ foreach ($teams as $team) {
                             </div>
                             <div class="team-name"><?php echo htmlspecialchars($team['team_name']); ?></div>
                             <div class="team-owner">Owner: <?php echo htmlspecialchars($team['owner_name']); ?></div>
-                            <div class="team-score" id="team-score-<?php echo $team['id']; ?>" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold; color: #fff;">
+                            <div class="team-score" id="team-score-<?php echo $team['id']; ?>" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold; color: #fff; position: relative; z-index: 1; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
                                 0.0 pts
                             </div>
                         </div>
@@ -1349,6 +1376,24 @@ foreach ($teams as $team) {
             if (avatarChosen) {
                 document.getElementById('avatarSelectorBtn').style.display = 'none';
             }
+        });
+
+        // Set team logo backgrounds
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.team-card').forEach(card => {
+                const logo = card.getAttribute('data-team-logo');
+                if (logo) {
+                    const header = card.querySelector('.team-header');
+                    if (header) {
+                        // Create a style element for this specific header's ::after
+                        const style = document.createElement('style');
+                        const uniqueId = 'team-' + card.getAttribute('data-team-id');
+                        card.classList.add(uniqueId);
+                        style.textContent = `.${uniqueId} .team-header::after { background-image: url('${logo}'); }`;
+                        document.head.appendChild(style);
+                    }
+                }
+            });
         });
 
         // Load username from localStorage
