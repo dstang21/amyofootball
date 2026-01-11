@@ -149,7 +149,7 @@ if ($teamId) {
     ]];
 } else {
     // Calculate all team scores
-    $teams = $pdo->query("SELECT id, team_name, owner_name FROM wyandotte_teams")->fetchAll();
+    $teams = $pdo->query("SELECT id, team_name, owner_name, logo FROM wyandotte_teams")->fetchAll();
     
     foreach ($teams as $team) {
         $stmt = $pdo->prepare("
@@ -177,6 +177,7 @@ if ($teamId) {
             'team_id' => $team['id'],
             'team_name' => $team['team_name'],
             'owner_name' => $team['owner_name'],
+            'logo' => $team['logo'],
             'total_points' => round($teamTotal, 2),
             'player_count' => count($teamPlayers),
             'players' => $teamPlayers

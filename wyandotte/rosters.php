@@ -2113,17 +2113,20 @@ foreach ($teams as $team) {
                         const pointsColor = team.total_points > 0 ? '#fbbf24' : '#9ca3af';
                         const bgColor = isFirst ? 'rgba(15,23,42,0.95)' : 'rgba(30,41,59,0.9)';
                         const borderColor = isFirst ? '#f97316' : 'rgba(249,115,22,0.3)';
+                        const logoUrl = team.logo || '';
+                        const bgImage = logoUrl ? `background-image: url('${logoUrl}'); background-size: 150px; background-position: right center; background-repeat: no-repeat; background-blend-mode: overlay;` : '';
                         
                         return `
-                            <div style="background: ${bgColor}; padding: 14px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;" onclick="openTeamModal(${team.team_id})" onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 6px 20px rgba(249,115,22,0.4)';" onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)';">
-                                <div style="display: flex; align-items: center; gap: 18px; flex: 1;">
+                            <div style="background: ${bgColor}; ${bgImage} padding: 14px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; position: relative; overflow: hidden;" onclick="openTeamModal(${team.team_id})" onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 6px 20px rgba(249,115,22,0.4)';" onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)';">
+                                ${logoUrl ? `<div style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); width: 180px; height: 180px; background-image: url('${logoUrl}'); background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0.08; pointer-events: none; z-index: 0;"></div>` : ''}
+                                <div style="display: flex; align-items: center; gap: 18px; flex: 1; position: relative; z-index: 1;">
                                     <span style="color: #fbbf24; font-weight: bold; font-size: 1.3rem; min-width: 35px;">${rank}</span>
                                     <div style="flex: 1;">
-                                        <div style="color: #ffffff; font-weight: bold; font-size: 1.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${team.team_name}</div>
-                                        <div style="color: #cbd5e1; font-size: 0.9rem;">${team.owner_name}</div>
+                                        <div style="color: #ffffff; font-weight: bold; font-size: 1.1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); letter-spacing: 0.3px;">${team.team_name}</div>
+                                        <div style="color: #cbd5e1; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); font-weight: 500;">Owner: ${team.owner_name}</div>
                                     </div>
                                 </div>
-                                <div style="text-align: right;">
+                                <div style="text-align: right; position: relative; z-index: 1;">
                                     <div style="color: ${pointsColor}; font-size: 1.8rem; font-weight: bold; text-shadow: 0 2px 8px rgba(251,191,36,0.3);">${team.total_points.toFixed(1)}</div>
                                     <div style="color: #94a3b8; font-size: 0.8rem;">${team.player_count} active</div>
                                 </div>
