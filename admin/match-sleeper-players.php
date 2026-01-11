@@ -143,7 +143,7 @@ $sleeper_players_query = $pdo->query("
            position, team, college, age
     FROM sleeper_players
     WHERE position IS NOT NULL
-    ORDER BY last_name, first_name
+    ORDER BY first_name, last_name
 ");
 $sleeper_players = $sleeper_players_query->fetchAll();
 
