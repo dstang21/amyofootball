@@ -2174,10 +2174,8 @@ foreach ($teams as $team) {
             const preview = document.getElementById('latestPlayPreview');
             const content = document.getElementById('latestPlayContent');
             
-            // Truncate description if too long
-            const shortDesc = play.description && play.description.length > 80 
-                ? play.description.substring(0, 80) + '...' 
-                : play.description;
+            // Show full description
+            const playDesc = play.description || '';
             
             // Show team logo if available
             const teamDisplay = play.team_logo 
@@ -2188,7 +2186,7 @@ foreach ($teams as $team) {
                 <span style="color: #ef4444; font-size: 1rem;">🔴 LIVE</span>
                 ${teamDisplay}
                 <span style="color: #94a3b8;">•</span>
-                <span style="color: #cbd5e1; font-size: 0.85rem;">${shortDesc || ''}</span>
+                <span style="color: #cbd5e1; font-size: 0.85rem;">${playDesc}</span>
             `;
             
             // Show preview if not on chat or plays tab
