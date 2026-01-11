@@ -256,7 +256,14 @@ include 'admin-nav.php';
             <div class="card-body" style="text-align: center; padding: 40px;">
                 <div style="font-size: 4em; margin-bottom: 20px;">🎉</div>
                 <h3 style="color: #16a34a; margin-bottom: 10px;">All Players Matched!</h3>
-         autoFillSelect(playerName, playerId) {
+                <p style="color: #6b7280;">Every player in your database is now linked to Sleeper.</p>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+
+<script>
+function autoFillSelect(playerName, playerId) {
     const select = document.getElementById('sleeper_select_' + playerId);
     const searchTerm = playerName.toLowerCase();
     
