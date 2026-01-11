@@ -12,7 +12,7 @@ function getShortIp() {
 }
 
 try {
-    $action = $_GET['action'] ?? 'get';
+    $action = $_GET['action'] ?? $_POST['action'] ?? 'get';
 
     if ($action === 'post' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle FormData from JavaScript
