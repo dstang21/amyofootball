@@ -761,6 +761,17 @@ foreach ($teams as $team) {
         #chatMessages::-webkit-scrollbar-thumb:hover {
             background: #ea580c;
         }
+        .avatar-option-large:hover {
+            background: rgba(249,115,22,0.3);
+            transform: scale(1.05);
+            border-color: #f97316;
+        }
+        #avatarModal {
+            display: none;
+        }
+        #avatarModal.active {
+            display: flex !important;
+        }
     </style>
 </head>
 <body>
@@ -1017,24 +1028,71 @@ foreach ($teams as $team) {
     <!-- Chat Tab -->
     <div id="chat" class="tab-content">
         <div style="max-width: 900px; margin: 0 auto;">
-            <!-- Avatar Selection -->
-            <div style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(249,115,22,0.3);">
-                <h3 style="color: #f97316; margin-bottom: 15px;">Select Your Avatar</h3>
-                <div id="avatarSelection" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                    <div class="avatar-option" data-avatar="football" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🏈</div>
-                    <div class="avatar-option" data-avatar="helmet" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⛑️</div>
-                    <div class="avatar-option" data-avatar="trophy" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🏆</div>
-                    <div class="avatar-option" data-avatar="fire" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🔥</div>
-                    <div class="avatar-option" data-avatar="star" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⭐</div>
-                    <div class="avatar-option" data-avatar="lightning" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⚡</div>
-                    <div class="avatar-option" data-avatar="rocket" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🚀</div>
-                    <div class="avatar-option" data-avatar="crown" style="font-size: 2rem; cursor: pointer; padding: 10px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👑</div>
+            <!-- Avatar Selector Modal -->
+            <div id="avatarModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;">
+                <div style="background: rgba(15,23,42,0.95); border-radius: 20px; padding: 30px; max-width: 600px; border: 2px solid #f97316; max-height: 80vh; overflow-y: auto;">
+                    <h3 style="color: #f97316; margin-bottom: 20px; text-align: center;">Choose Your Avatar</h3>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                        <div class="avatar-option-large" data-avatar="football" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🏈</div>
+                        <div class="avatar-option-large" data-avatar="helmet" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⛑️</div>
+                        <div class="avatar-option-large" data-avatar="trophy" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🏆</div>
+                        <div class="avatar-option-large" data-avatar="fire" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🔥</div>
+                        <div class="avatar-option-large" data-avatar="star" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⭐</div>
+                        <div class="avatar-option-large" data-avatar="lightning" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">⚡</div>
+                        <div class="avatar-option-large" data-avatar="rocket" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🚀</div>
+                        <div class="avatar-option-large" data-avatar="crown" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👑</div>
+                        <div class="avatar-option-large" data-avatar="skull" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">💀</div>
+                        <div class="avatar-option-large" data-avatar="alien" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👽</div>
+                        <div class="avatar-option-large" data-avatar="robot" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🤖</div>
+                        <div class="avatar-option-large" data-avatar="ghost" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👻</div>
+                        <div class="avatar-option-large" data-avatar="poop" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">💩</div>
+                        <div class="avatar-option-large" data-avatar="clown" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🤡</div>
+                        <div class="avatar-option-large" data-avatar="demon" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">😈</div>
+                        <div class="avatar-option-large" data-avatar="devil" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👿</div>
+                        <div class="avatar-option-large" data-avatar="ninja" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🥷</div>
+                        <div class="avatar-option-large" data-avatar="pirate" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🏴‍☠️</div>
+                        <div class="avatar-option-large" data-avatar="muscle" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">💪</div>
+                        <div class="avatar-option-large" data-avatar="punch" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👊</div>
+                        <div class="avatar-option-large" data-avatar="boom" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">💥</div>
+                        <div class="avatar-option-large" data-avatar="bomb" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">💣</div>
+                        <div class="avatar-option-large" data-avatar="dart" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🎯</div>
+                        <div class="avatar-option-large" data-avatar="beer" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🍺</div>
+                        <div class="avatar-option-large" data-avatar="pizza" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🍕</div>
+                        <div class="avatar-option-large" data-avatar="burger" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🍔</div>
+                        <div class="avatar-option-large" data-avatar="hotdog" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🌭</div>
+                        <div class="avatar-option-large" data-avatar="taco" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🌮</div>
+                        <div class="avatar-option-large" data-avatar="wolf" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐺</div>
+                        <div class="avatar-option-large" data-avatar="lion" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🦁</div>
+                        <div class="avatar-option-large" data-avatar="tiger" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐯</div>
+                        <div class="avatar-option-large" data-avatar="bear" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐻</div>
+                        <div class="avatar-option-large" data-avatar="gorilla" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🦍</div>
+                        <div class="avatar-option-large" data-avatar="eagle" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🦅</div>
+                        <div class="avatar-option-large" data-avatar="shark" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🦈</div>
+                        <div class="avatar-option-large" data-avatar="trex" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🦖</div>
+                        <div class="avatar-option-large" data-avatar="dragon" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐉</div>
+                        <div class="avatar-option-large" data-avatar="unicorn" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🦄</div>
+                        <div class="avatar-option-large" data-avatar="monkey" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐵</div>
+                        <div class="avatar-option-large" data-avatar="pig" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐷</div>
+                        <div class="avatar-option-large" data-avatar="dog" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐶</div>
+                        <div class="avatar-option-large" data-avatar="cat" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🐱</div>
+                        <div class="avatar-option-large" data-avatar="money" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">💰</div>
+                        <div class="avatar-option-large" data-avatar="diamond" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">💎</div>
+                        <div class="avatar-option-large" data-avatar="puke" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🤮</div>
+                        <div class="avatar-option-large" data-avatar="nerd" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">🤓</div>
+                        <div class="avatar-option-large" data-avatar="cool" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">😎</div>
+                        <div class="avatar-option-large" data-avatar="eyes" style="font-size: 2rem; cursor: pointer; padding: 8px; border: 3px solid transparent; border-radius: 10px; transition: all 0.3s;">👀</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Chat Form -->
             <div style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(249,115,22,0.3);">
-                <input type="text" id="chatUsername" placeholder="Enter your name" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; margin-bottom: 10px;">
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="currentAvatar" style="font-size: 2rem;">🏈</span>
+                        <button id="avatarSelectorBtn" onclick="openAvatarModal()" style="padding: 4px 8px; background: rgba(249,115,22,0.3); border: 1px solid #f97316; border-radius: 5px; color: #fbbf24; cursor: pointer; font-size: 0.75rem; transition: all 0.3s;">Change</button>
+                    </div>
+                    <input type="text" id="chatUsername" placeholder="Enter your name" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
                 <div style="display: flex; gap: 10px;">
                     <textarea id="chatMessage" placeholder="Type your message..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; resize: vertical; min-height: 60px;"></textarea>
                     <button onclick="sendChatMessage()" style="padding: 12px 30px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(249,115,22,0.4);">Send</button>
@@ -1055,21 +1113,102 @@ foreach ($teams as $team) {
         let liveScoresInterval;
         let livePlayerStatsInterval;
         let rosterStatsInterval;
-        let selectedAvatar = 'football';
+        let selectedAvatar = localStorage.getItem('chatAvatar') || 'football';
         let chatUsername = localStorage.getItem('chatUsername') || '';
         let chatRefreshInterval;
+        let avatarChosen = sessionStorage.getItem('avatarChosen') === 'true';
 
-        // Avatar selection
-        document.querySelectorAll('.avatar-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.avatar-option').forEach(o => o.style.borderColor = 'transparent');
-                this.style.borderColor = '#f97316';
-                selectedAvatar = this.getAttribute('data-avatar');
+        const avatarMap = {
+            'football': '🏈',
+            'helmet': '⛑️',
+            'trophy': '🏆',
+            'fire': '🔥',
+            'star': '⭐',
+            'lightning': '⚡',
+            'rocket': '🚀',
+            'crown': '👑',
+            'skull': '💀',
+            'alien': '👽',
+            'robot': '🤖',
+            'ghost': '👻',
+            'poop': '💩',
+            'clown': '🤡',
+            'demon': '😈',
+            'devil': '👿',
+            'ninja': '🥷',
+            'pirate': '🏴‍☠️',
+            'muscle': '💪',
+            'punch': '👊',
+            'boom': '💥',
+            'bomb': '💣',
+            'dart': '🎯',
+            'beer': '🍺',
+            'pizza': '🍕',
+            'burger': '🍔',
+            'hotdog': '🌭',
+            'taco': '🌮',
+            'wolf': '🐺',
+            'lion': '🦁',
+            'tiger': '🐯',
+            'bear': '🐻',
+            'gorilla': '🦍',
+            'eagle': '🦅',
+            'shark': '🦈',
+            'trex': '🦖',
+            'dragon': '🐉',
+            'unicorn': '🦄',
+            'monkey': '🐵',
+            'pig': '🐷',
+            'dog': '🐶',
+            'cat': '🐱',
+            'money': '💰',
+            'diamond': '💎',
+            'puke': '🤮',
+            'nerd': '🤓',
+            'cool': '😎',
+            'eyes': '👀'
+        };
+
+        // Update current avatar display
+        function updateAvatarDisplay() {
+            document.getElementById('currentAvatar').textContent = avatarMap[selectedAvatar];
+        }
+
+        // Open avatar modal
+        function openAvatarModal() {
+            document.getElementById('avatarModal').classList.add('active');
+        }
+
+        // Close avatar modal
+        function closeAvatarModal() {
+            document.getElementById('avatarModal').classList.remove('active');
+        }
+
+        // Avatar selection from modal
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.avatar-option-large').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectedAvatar = this.getAttribute('data-avatar');
+                    localStorage.setItem('chatAvatar', selectedAvatar);
+                    sessionStorage.setItem('avatarChosen', 'true');
+                    avatarChosen = true;
+                    updateAvatarDisplay();
+                    
+                    // Hide the change button
+                    document.getElementById('avatarSelectorBtn').style.display = 'none';
+                    
+                    closeAvatarModal();
+                });
             });
-        });
 
-        // Set first avatar as selected by default
-        document.querySelector('.avatar-option').style.borderColor = '#f97316';
+            // Initialize avatar display
+            updateAvatarDisplay();
+            
+            // Hide change button if already chosen this session
+            if (avatarChosen) {
+                document.getElementById('avatarSelectorBtn').style.display = 'none';
+            }
+        });
 
         // Load username from localStorage
         if (chatUsername) {
@@ -1171,17 +1310,6 @@ foreach ($teams as $team) {
             // Reverse to show oldest first
             messages.reverse();
 
-            const avatarMap = {
-                'football': '🏈',
-                'helmet': '⛑️',
-                'trophy': '🏆',
-                'fire': '🔥',
-                'star': '⭐',
-                'lightning': '⚡',
-                'rocket': '🚀',
-                'crown': '👑'
-            };
-
             container.innerHTML = messages.map(msg => `
                 <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; margin-bottom: 10px; border-left: 3px solid #f97316;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
@@ -1253,16 +1381,6 @@ foreach ($teams as $team) {
                 .then(data => {
                     if (data.success && data.message) {
                         const msg = data.message;
-                        const avatarMap = {
-                            'football': '🏈',
-                            'helmet': '⛑️',
-                            'trophy': '🏆',
-                            'fire': '🔥',
-                            'star': '⭐',
-                            'lightning': '⚡',
-                            'rocket': '🚀',
-                            'crown': '👑'
-                        };
                         
                         const content = `
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
