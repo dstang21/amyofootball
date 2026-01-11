@@ -141,103 +141,46 @@ foreach ($teams as $team) {
             padding: 8px 0;
         }
         .navbar-logo {
-            height: 40px;
+            height: 32px;
             width: auto;
         }
         .navbar-home {
-            padding: 6px 12px;
-            background: rgba(249,115,22,0.2);
-            border: 1px solid #f97316;
-            border-radius: 4px;
             color: #fbbf24;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
             transition: all 0.3s;
+            font-size: 0.8rem;
         }
         .navbar-home:hover {
-            background: #f97316;
-            color: white;
-        }
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-        }
-        .hamburger span {
-            width: 25px;
-            height: 3px;
-            background: #f97316;
-            transition: all 0.3s;
-            border-radius: 2px;
-        }
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(6px, 6px);
-        }
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(6px, -6px);
+            background: rgba(251,191,36,0.2);
         }
         .nav-tabs {
             display: flex;
             gap: 5px;
             align-items: center;
         }
-        .nav-tabs button {
-            padding: 10px 16px;
+        .nav-tabs button, .nav-tabs a {
             background: transparent;
             border: none;
+            color: rgba(255,255,255,0.7);
+            padding: 8px 12px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-            color: rgba(255,255,255,0.6);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
         }
-        .nav-tabs button:hover {
+        .nav-tabs button:hover, .nav-tabs a:hover {
             color: #fbbf24;
-            border-bottom-color: rgba(249,115,22,0.5);
+            border-bottom-color: #fbbf24;
         }
         .nav-tabs button.active {
-            color: white;
+            color: #f97316;
             border-bottom-color: #f97316;
-            background: rgba(249,115,22,0.1);
-        }
-        @media (max-width: 768px) {
-            .navbar-container {
-                flex-wrap: wrap;
-            }
-            .hamburger {
-                display: flex;
-            }
-            .nav-tabs {
-                width: 100%;
-                flex-direction: column;
-                gap: 0;
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.3s ease-out;
-            }
-            .nav-tabs.mobile-open {
-                max-height: 500px;
-            }
-            .nav-tabs button {
-                width: 100%;
-                text-align: left;
-                padding: 15px 20px;
-                border-bottom: 1px solid rgba(249,115,22,0.2);
-            }
-            .navbar-logo {
-                height: 40px;
-            }
+            font-weight: bold;
         }
         .tab-content {
             display: none;
@@ -847,17 +790,12 @@ foreach ($teams as $team) {
                 <img src="../amyofootball_logo.png" alt="Amyofootball" class="navbar-logo">
                 <a href="index.php" class="navbar-home">Home</a>
             </div>
-            <button class="hamburger" onclick="toggleMobileMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <div class="nav-tabs" id="navTabs">
+            <div class="nav-tabs">
                 <button class="active" onclick="showTab('live')">Live Scores</button>
                 <button onclick="showTab('rosters')">Rosters</button>
                 <button onclick="showTab('playerStats')">Player Stats</button>
                 <button onclick="showTab('plays')">Latest Plays</button>
-                <a href="chat.php" style="padding: 8px 12px; background: transparent; border: none; color: rgba(255,255,255,0.7); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s; font-size: 12px; text-decoration: none; display: inline-block;">Chat</a>
+                <a href="chat.php">Chat</a>
                 <button onclick="showTab('gallery')">Gallery</button>
                 <button onclick="showTab('stats')">League Stats</button>
                 <button onclick="showTab('analytics')">Analytics</button>
@@ -1212,22 +1150,7 @@ foreach ($teams as $team) {
             });
         });
 
-        function toggleMobileMenu() {
-            const navTabs = document.getElementById('navTabs');
-            const hamburger = document.querySelector('.hamburger');
-            navTabs.classList.toggle('mobile-open');
-            hamburger.classList.toggle('active');
-        }
-
         function showTab(tabName) {
-            // Close mobile menu if open
-            const navTabs = document.getElementById('navTabs');
-            const hamburger = document.querySelector('.hamburger');
-            if (navTabs.classList.contains('mobile-open')) {
-                navTabs.classList.remove('mobile-open');
-                hamburger.classList.remove('active');
-            }
-
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
