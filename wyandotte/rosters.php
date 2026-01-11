@@ -883,7 +883,7 @@ foreach ($teams as $team) {
     <div id="latestChatPreview" style="max-width: 800px; margin: 0 auto 20px; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 15px; border: 1px solid rgba(249,115,22,0.3); display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h3 style="color: #f97316; margin: 0; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Latest Chat</h3>
-            <a href="#" onclick="showTab('chat'); return false;" style="color: #fbbf24; text-decoration: none; font-size: 0.75rem;">View All →</a>
+            <a href="chat.php" style="color: #fbbf24; text-decoration: none; font-size: 0.75rem;">View All →</a>
         </div>
         <div id="latestChatContent" style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 12px;">
             Loading...
