@@ -1917,7 +1917,14 @@ foreach ($teams as $team) {
                             console.log('📋 Players to add:', Object.keys(sync.missing_players).join(', '));
                         }
                         if (sync.drive_team_debug && sync.drive_team_debug.length > 0) {
-                            console.log('🏟️ DRIVE TEAM DATA:', sync.drive_team_debug);
+                            console.log('🏟️ DRIVE TEAM DATA (first 5 drives):');
+                            sync.drive_team_debug.forEach((drive, index) => {
+                                console.log(`  Drive ${index + 1}:`, {
+                                    extracted_team: drive.drive_team,
+                                    team_object: drive.team_data,
+                                    description: drive.description
+                                });
+                            });
                         }
                     }
                     
