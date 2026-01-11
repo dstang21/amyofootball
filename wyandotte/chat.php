@@ -267,7 +267,7 @@ $page_title = 'Wyandotte Football League - Chat';
                 <input type="text" id="chatUsername" placeholder="Enter your name" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
             </div>
             <div style="display: flex; gap: 10px;">
-                <textarea id="chatMessage" placeholder="Type your message..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; resize: vertical; min-height: 60px;"></textarea>
+                <textarea id="chatMessage" placeholder="Type your message..." style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; resize: vertical; min-height: 60px;" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendChatMessage(); }"></textarea>
                 <button onclick="sendChatMessage()" style="padding: 12px 30px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(249,115,22,0.4);">Send</button>
             </div>
             <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 8px;">Max 500 characters</p>
