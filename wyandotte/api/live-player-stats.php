@@ -116,43 +116,24 @@ if (isset($scoreboard['events'])) {
         $awayTeam = $competition['competitors'][1]['team']['abbreviation'] ?? '';
         $gameInfo = $awayTeam . ' @ ' . $homeTeam;
         
-        // Process scoring plays while we have the data
-        if (isset($boxScore['scoringPlays'])) {
-            foreach ($boxScore['scoringPlays'] as $scoringPlay) {
-                $playsProcessed++;
-                $playId = $scoringPlay['id'] ?? null;
-                
-                // Get play details from drives
-                $playDetails = null;
-                if (isset($boxScore['drives']['previous'])) {
-                    foreach ($boxScore['drives']['previous'] as $drive) {
-                        if (isset($drive['plays'])) {
-                            foreach ($drive['plays'] as $play) {
-                                if ($play['id'] == $playId) {
-                                    $playDetails = $play;
-                                    break 2;
-                                }
-                            }
+        // Process ALL plays from drives (not just scoring plays)
+        if (isset($boxScore['drives']['previous'])) {
+            foreach ($boxScore['drives']['previous'] as $drive) {
+                if (isset($drive['plays'])) {
+                    foreach ($drive['plays'] as $play) {
+                        $playsProcessed++;
+                        
+                        $description = $play['text'] ?? '';
+                        
+                        // Skip if we've already recorded this play
+                        if (isset($existingPlays[$description])) {
+                            $playsSkipped++;
+                            continue;
                         }
-                    }
-                }
-                
-                if (!$playDetails) {
-                    $playErrors[] = "No play details for play ID: $playId";
-                    continue;
-                }
-                
-                $description = $playDetails['text'] ?? '';
-                
-                // Skip if we've already recorded this play
-                if (isset($existingPlays[$description])) {
-                    $playsSkipped++;
-                    continue;
-                }
-                
-                // Extract player name from play text
-                $playerId = null;
-                $playerName = '';
+                        
+                        // Extract player name from play text
+                        $playerId = null;
+                        $playerName = '';
                 
                 // Try to match player names in the description
                 // First try exact matches and abbreviated formats
@@ -225,8 +206,8 @@ if (isset($scoreboard['events'])) {
                 }
                 
                 // Get quarter and time
-                $period = $playDetails['period']['number'] ?? 1;
-                $clock = $playDetails['clock']['displayValue'] ?? '';
+                $period = $play['period']['number'] ?? 1;
+                $clock = $play['clock']['displayValue'] ?? '';
                 $gameContext = $gameInfo . ' - Q' . $period . ' ' . $clock;
                 
                 // Insert play into database
@@ -242,6 +223,8 @@ if (isset($scoreboard['events'])) {
                     // Skip duplicate or error
                     $playsSkipped++;
                     $playErrors[] = "DB Error: " . $e->getMessage();
+                }
+                    }
                 }
             }
         }
