@@ -190,17 +190,17 @@ foreach ($teams as $team) {
             align-items: center;
         }
         .nav-tabs button {
-            padding: 15px 20px;
+            padding: 10px 16px;
             background: transparent;
             border: none;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.2s;
             color: rgba(255,255,255,0.6);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 3px solid transparent;
+            border-bottom: 2px solid transparent;
         }
         .nav-tabs button:hover {
             color: #fbbf24;
