@@ -107,6 +107,7 @@ foreach ($teams as $team) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title; ?></title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -115,51 +116,83 @@ foreach ($teams as $team) {
             min-height: 100vh;
             padding: 20px;
         }
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-            padding: 15px 10px;
-            background: rgba(0,0,0,0.6);
-            border-radius: 10px;
+        .navbar {
+            background: rgba(15,23,42,0.95);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 2px solid rgba(249,115,22,0.3);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            margin-bottom: 20px;
         }
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
         }
-        .header p {
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+        }
+        .navbar-logo {
+            height: 50px;
+            width: auto;
+        }
+        .navbar-home {
+            padding: 8px 16px;
+            background: rgba(249,115,22,0.2);
+            border: 1px solid #f97316;
+            border-radius: 6px;
+            color: #fbbf24;
+            text-decoration: none;
+            font-weight: 600;
             font-size: 0.9rem;
-            opacity: 0.9;
-            margin: 0;
+            transition: all 0.3s;
         }
-        @media (min-width: 768px) {
-            .header h1 {
-                font-size: 2.5rem;
-            }
-            .header p {
-                font-size: 1rem;
-            }
+        .navbar-home:hover {
+            background: #f97316;
+            color: white;
+        }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #f97316;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
         }
         .nav-tabs {
             display: flex;
-            gap: 0;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
-            background: rgba(0,0,0,0.5);
-            border-radius: 8px;
-            padding: 5px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            gap: 5px;
+            align-items: center;
         }
         .nav-tabs button {
-            padding: 12px 24px;
+            padding: 15px 20px;
             background: transparent;
             border: none;
-            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
@@ -167,15 +200,44 @@ foreach ($teams as $team) {
             color: rgba(255,255,255,0.6);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border-bottom: 3px solid transparent;
         }
         .nav-tabs button:hover {
-            background: rgba(249,115,22,0.2);
             color: #fbbf24;
+            border-bottom-color: rgba(249,115,22,0.5);
         }
         .nav-tabs button.active {
-            background: #f97316;
             color: white;
-            box-shadow: 0 0 20px rgba(249,115,22,0.4);
+            border-bottom-color: #f97316;
+            background: rgba(249,115,22,0.1);
+        }
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-wrap: wrap;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .nav-tabs {
+                width: 100%;
+                flex-direction: column;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+            }
+            .nav-tabs.mobile-open {
+                max-height: 500px;
+            }
+            .nav-tabs button {
+                width: 100%;
+                text-align: left;
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(249,115,22,0.2);
+            }
+            .navbar-logo {
+                height: 40px;
+            }
         }
         .tab-content {
             display: none;
@@ -1222,7 +1284,22 @@ foreach ($teams as $team) {
             document.getElementById('chatUsername').value = chatUsername;
         }
 
+        function toggleMobileMenu() {
+            const navTabs = document.getElementById('navTabs');
+            const hamburger = document.querySelector('.hamburger');
+            navTabs.classList.toggle('mobile-open');
+            hamburger.classList.toggle('active');
+        }
+
         function showTab(tabName) {
+            // Close mobile menu if open
+            const navTabs = document.getElementById('navTabs');
+            const hamburger = document.querySelector('.hamburger');
+            if (navTabs.classList.contains('mobile-open')) {
+                navTabs.classList.remove('mobile-open');
+                hamburger.classList.remove('active');
+            }
+
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
