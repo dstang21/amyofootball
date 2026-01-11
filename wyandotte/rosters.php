@@ -1107,6 +1107,19 @@ foreach ($teams as $team) {
         </div>
     </div>
 
+    <!-- Latest Plays Tab -->
+    <div id="plays" class="tab-content">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="color: white; font-size: 1.2rem;">Live Play-by-Play Feed</p>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Click on any play for detailed scoring breakdown</p>
+            </div>
+            <div id="playsContainer" style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; min-height: 400px; max-height: 600px; overflow-y: auto; border: 1px solid rgba(249,115,22,0.3);">
+                <p style="text-align: center; color: #94a3b8;">Loading plays...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Chat Tab -->
     <div id="chat" class="tab-content">
         <div style="max-width: 900px; margin: 0 auto;">
@@ -1370,6 +1383,17 @@ foreach ($teams as $team) {
                 // Only show if there's content and not on chat tab
                 latestChatPreview.style.display = 'block';
             }
+            
+            // Hide/show latest play preview based on tab
+            const latestPlayPreview = document.getElementById('latestPlayPreview');
+            if (tabName === 'plays') {
+                latestPlayPreview.style.display = 'none';
+            }
+            
+            // Load plays if plays tab is selected
+            if (tabName === 'plays') {
+                updateLatestPlays();
+            }
 
             // Live scores always run in background - just refresh when viewing tab
             if (tabName === 'live') {
@@ -1397,17 +1421,6 @@ foreach ($teams as $team) {
             // Load chat messages if chat tab is selected
             if (tabName === 'chat') {
                 loadChatMessages();
-                if (!chatRefreshInterval) {
-                    chatRefreshInterval = setInterval(() => {
-                        loadChatMessages();
-                        updateLatestChat();
-                    }, 60000);
-                }
-            } else {
-                if (chatRefreshInterval) {
-                    clearInterval(chatRefreshInterval);
-                    chatRefreshInterval = null;
-                }
             }
         }
 
@@ -1952,9 +1965,18 @@ foreach ($teams as $team) {
             loadTeamScores();
             setInterval(loadTeamScores, 60000); // Update every 60 seconds
 
-            // Load latest chat
+            // Load latest chat and start refresh interval
             updateLatestChat();
             setInterval(updateLatestChat, 60000); // Update every 60 seconds
+            
+            // Start chat refresh interval (runs continuously in background)
+            chatRefreshInterval = setInterval(() => {
+                loadChatMessages();
+            }, 60000);
+
+            // Load latest plays and start refresh interval
+            updateLatestPlays();
+            setInterval(updateLatestPlays, 60000); // Update every 60 seconds
 
             // Always update live scores regardless of tab
             updateLiveScores();
@@ -2047,6 +2069,161 @@ foreach ($teams as $team) {
 
         // Team modal functionality
         let currentTeamScores = null;
+
+        // Play functions
+        function updateLatestPlays() {
+            fetch('api/plays.php?action=get&limit=20')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.plays && data.plays.length > 0) {
+                        displayPlays(data.plays);
+                        
+                        // Update latest play preview
+                        const latestPlay = data.plays[0];
+                        updateLatestPlayPreview(latestPlay);
+                    } else {
+                        document.getElementById('playsContainer').innerHTML = '<p style="text-align: center; color: #94a3b8;">No plays recorded yet</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading plays:', error);
+                    document.getElementById('playsContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading plays</p>';
+                });
+        }
+
+        function displayPlays(plays) {
+            const container = document.getElementById('playsContainer');
+            
+            let playsHtml = plays.map(play => {
+                const playTime = play.play_time ? new Date(play.play_time).toLocaleString() : 'Unknown';
+                const createdTime = new Date(play.created_at).toLocaleString();
+                const pointsColor = play.points > 0 ? '#10b981' : play.points < 0 ? '#ef4444' : '#94a3b8';
+                const pointsSign = play.points > 0 ? '+' : '';
+                
+                return `
+                    <div style="background: rgba(15,23,42,0.8); border-radius: 10px; padding: 15px; margin-bottom: 10px; border-left: 4px solid ${pointsColor}; cursor: pointer; transition: all 0.3s; border: 1px solid rgba(249,115,22,0.2);" 
+                         onmouseover="this.style.background='rgba(15,23,42,0.95)'; this.style.borderColor='#f97316';" 
+                         onmouseout="this.style.background='rgba(15,23,42,0.8)'; this.style.borderColor='rgba(249,115,22,0.2)';" 
+                         onclick="openPlayModal(${play.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <span style="color: #f97316; font-weight: bold; font-size: 0.95rem;">${play.play_type || 'Play'}</span>
+                                ${play.player_name ? `<span style="color: #fbbf24; font-weight: bold; margin-left: 10px;">${play.player_name}</span>` : ''}
+                                ${play.position ? `<span style="color: #94a3b8; font-size: 0.85rem; margin-left: 5px;">(${play.position})</span>` : ''}
+                            </div>
+                            <span style="color: ${pointsColor}; font-weight: bold; font-size: 1.1rem;">${pointsSign}${parseFloat(play.points).toFixed(1)} pts</span>
+                        </div>
+                        <div style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 6px;">${play.description || ''}</div>
+                        ${play.game_info ? `<div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 4px;">🏈 ${play.game_info}</div>` : ''}
+                        <div style="color: #64748b; font-size: 0.8rem;">⏰ ${playTime}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = playsHtml;
+        }
+
+        function updateLatestPlayPreview(play) {
+            if (!play) return;
+            
+            const preview = document.getElementById('latestPlayPreview');
+            const content = document.getElementById('latestPlayContent');
+            
+            const pointsColor = play.points > 0 ? '#10b981' : play.points < 0 ? '#ef4444' : '#94a3b8';
+            const pointsSign = play.points > 0 ? '+' : '';
+            
+            content.innerHTML = `
+                <span style="color: #ef4444; font-size: 1rem;">🔴 LIVE</span>
+                <span style="color: #fbbf24; font-weight: bold;">${play.player_name || 'Unknown Player'}</span>
+                <span style="color: #94a3b8;">•</span>
+                <span style="color: #f97316; font-weight: bold;">${play.play_type || 'Play'}</span>
+                <span style="color: #94a3b8;">•</span>
+                <span style="color: ${pointsColor}; font-weight: bold;">${pointsSign}${parseFloat(play.points).toFixed(1)} pts</span>
+            `;
+            
+            // Show preview if not on chat or plays tab
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab && activeTab.id !== 'chat' && activeTab.id !== 'plays') {
+                preview.style.display = 'block';
+            }
+        }
+
+        function openPlayModal(playId) {
+            fetch(`api/plays.php?action=get&limit=100`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success || !data.plays) {
+                        alert('Error loading play details');
+                        return;
+                    }
+                    
+                    const play = data.plays.find(p => p.id == playId);
+                    if (!play) {
+                        alert('Play not found');
+                        return;
+                    }
+                    
+                    const playTime = play.play_time ? new Date(play.play_time).toLocaleString() : 'Unknown';
+                    const pointsColor = play.points > 0 ? '#10b981' : play.points < 0 ? '#ef4444' : '#94a3b8';
+                    const pointsSign = play.points > 0 ? '+' : '';
+                    
+                    document.getElementById('playModalTitle').textContent = play.play_type || 'Play Details';
+                    document.getElementById('playModalContent').innerHTML = `
+                        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div>
+                                    <div style="color: #fbbf24; font-size: 1.3rem; font-weight: bold; margin-bottom: 5px;">${play.player_name || 'Unknown Player'}</div>
+                                    ${play.position ? `<div style="color: #94a3b8; font-size: 0.95rem;">${play.position}</div>` : ''}
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="color: ${pointsColor}; font-size: 2rem; font-weight: bold;">${pointsSign}${parseFloat(play.points).toFixed(1)}</div>
+                                    <div style="color: #94a3b8; font-size: 0.85rem;">Fantasy Points</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="color: #f97316; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Play Description</h3>
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; color: #cbd5e1; line-height: 1.6;">
+                                ${play.description || 'No description available'}
+                            </div>
+                        </div>
+                        
+                        ${play.game_info ? `
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="color: #f97316; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Game Context</h3>
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; color: #cbd5e1;">
+                                🏈 ${play.game_info}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div>
+                            <h3 style="color: #f97316; font-size: 1.1rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Timing</h3>
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px;">
+                                <div style="color: #cbd5e1; margin-bottom: 8px;">⏰ Play Time: <span style="color: #fbbf24;">${playTime}</span></div>
+                                <div style="color: #cbd5e1;">📝 Recorded: <span style="color: #94a3b8;">${new Date(play.created_at).toLocaleString()}</span></div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 25px; text-align: center;">
+                            <button onclick="closePlayModal()" style="padding: 12px 40px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(249,115,22,0.4);">Close</button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('playModal').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error loading play details:', error);
+                    alert('Error loading play details');
+                });
+        }
+
+        function closePlayModal(event) {
+            if (!event || event.target.id === 'playModal') {
+                document.getElementById('playModal').style.display = 'none';
+            }
+        }
 
         function openTeamModal(teamId) {
             // Show loading state
@@ -2157,14 +2334,30 @@ foreach ($teams as $team) {
             }
         }
 
-        // Close lightbox on ESC key
+        // Close modals on ESC key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeLightbox();
                 closeTeamModal();
+                closePlayModal();
             }
         });
     </script>
+
+    <!-- Play Detail Modal -->
+    <div id="playModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 10000; overflow-y: auto;" onclick="closePlayModal(event)">
+        <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 20px; padding: 30px; max-width: 600px; width: 100%; border: 2px solid #f97316; position: relative;" onclick="event.stopPropagation();">
+                <button onclick="closePlayModal()" style="position: absolute; top: 15px; right: 15px; background: rgba(239,68,68,0.2); border: 1px solid #ef4444; color: #ef4444; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.3rem; line-height: 1; transition: all 0.3s;">&times;</button>
+                
+                <h2 style="color: #f97316; margin-bottom: 20px; font-size: 1.5rem; text-align: center;" id="playModalTitle">Play Details</h2>
+                
+                <div id="playModalContent" style="color: white;">
+                    <!-- Content will be dynamically populated -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Lightbox -->
     <div id="lightbox" class="lightbox" onclick="closeLightbox()">
