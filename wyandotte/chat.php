@@ -444,7 +444,7 @@ $page_title = 'Wyandotte Football League - Chat';
                         <span style="color: #fbbf24; font-weight: bold; font-size: 0.85rem;">${escapeHtml(msg.username)}</span>
                         <span style="color: #64748b; font-size: 0.75rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
                     </div>
-                    <div style="color: #cbd5e1; line-height: 1.4; font-size: 0.9rem;">${escapeHtml(msg.message)}</div>
+                    <div style="color: #cbd5e1; line-height: 1.4; font-size: 0.9rem;">${formatMessage(msg.message)}</div>
                 </div>
             `).join('');
 
@@ -503,6 +503,20 @@ $page_title = 'Wyandotte Football League - Chat';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function formatMessage(message) {
+            // Check for /pic/filename pattern
+            const picPattern = /\/pic\/([a-zA-Z0-9_-]+)/g;
+            
+            let formattedMessage = escapeHtml(message);
+            
+            // Replace /pic/filename with actual image
+            formattedMessage = formattedMessage.replace(picPattern, (match, filename) => {
+                return `<img src="chat-images/${filename}.png" alt="${filename}" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 8px; display: block;" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span style=\\'color: #ef4444; font-size: 0.85rem;\\'>[Image not found: ${filename}]</span>');">`;
+            });
+            
+            return formattedMessage;
         }
 
         function timeAgo(dateString) {

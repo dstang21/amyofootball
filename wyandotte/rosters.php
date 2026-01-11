@@ -1341,7 +1341,7 @@ foreach ($teams as $team) {
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.2rem;">${avatarMap[msg.avatar] || '🏈'}</span>
                                 <span style="color: #fbbf24; font-weight: bold; font-size: 0.9rem;">${escapeHtml(msg.username)}</span>
-                                <span style="color: #cbd5e1; font-size: 0.9rem; flex: 1;">${escapeHtml(msg.message)}</span>
+                                <span style="color: #cbd5e1; font-size: 0.9rem; flex: 1;">${formatMessage(msg.message)}</span>
                                 <span style="color: #64748b; font-size: 0.75rem; white-space: nowrap;">${timeAgo(msg.created_at)}</span>
                             </div>
                         `;
@@ -1357,6 +1357,20 @@ foreach ($teams as $team) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function formatMessage(message) {
+            // Check for /pic/filename pattern
+            const picPattern = /\/pic\/([a-zA-Z0-9_-]+)/g;
+            
+            let formattedMessage = escapeHtml(message);
+            
+            // Replace /pic/filename with actual image
+            formattedMessage = formattedMessage.replace(picPattern, (match, filename) => {
+                return `<img src="chat-images/${filename}.png" alt="${filename}" style="max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 4px; display: block;" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span style=\'color: #ef4444; font-size: 0.85rem;\'>[Image not found: ${filename}]</span>');">`;
+            });
+            
+            return formattedMessage;
         }
 
         function timeAgo(dateString) {
