@@ -1545,12 +1545,12 @@ foreach ($teams as $team) {
                         const msg = data.message;
                         
                         const content = `
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.2rem;">${avatarMap[msg.avatar] || '🏈'}</span>
                                 <span style="color: #fbbf24; font-weight: bold; font-size: 0.9rem;">${escapeHtml(msg.username)}</span>
-                                <span style="color: #64748b; font-size: 0.75rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
+                                <span style="color: #cbd5e1; font-size: 0.9rem; flex: 1;">${escapeHtml(msg.message)}</span>
+                                <span style="color: #64748b; font-size: 0.75rem; white-space: nowrap;">${timeAgo(msg.created_at)}</span>
                             </div>
-                            <div style="color: #cbd5e1; font-size: 0.9rem;">${escapeHtml(msg.message)}</div>
                         `;
                         
                         document.getElementById('latestChatContent').innerHTML = content;
