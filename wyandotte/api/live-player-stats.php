@@ -120,7 +120,18 @@ if (isset($scoreboard['events'])) {
         if (isset($boxScore['drives']['previous'])) {
             foreach ($boxScore['drives']['previous'] as $drive) {
                 // Get the team that has possession in this drive
-                $driveTeam = $drive['team']['abbreviation'] ?? null;
+                // Try multiple possible locations for team data
+                $driveTeam = $drive['team']['abbreviation'] ?? 
+                             $drive['team']['abbrev'] ?? 
+                             $drive['displayName'] ?? 
+                             null;
+                
+                // If still no team, try to extract from description or skip
+                if (!$driveTeam && isset($drive['description'])) {
+                    if (preg_match('/([A-Z]{2,3})\s/', $drive['description'], $match)) {
+                        $driveTeam = $match[1];
+                    }
+                }
                 
                 if (isset($drive['plays'])) {
                     foreach ($drive['plays'] as $play) {
