@@ -1330,18 +1330,19 @@ foreach ($teams as $team) {
             });
         }
 
-        function updateLatestChat() {
+        async function updateLatestChat() {
             fetch('api/chat.php?action=latest')
                 .then(response => response.json())
-                .then(data => {
+                .then(async data => {
                     if (data.success && data.message) {
                         const msg = data.message;
+                        const formattedMsg = await formatMessage(msg.message);
                         
                         const content = `
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.2rem;">${avatarMap[msg.avatar] || '🏈'}</span>
                                 <span style="color: #fbbf24; font-weight: bold; font-size: 0.9rem;">${escapeHtml(msg.username)}</span>
-                                <span style="color: #cbd5e1; font-size: 0.9rem; flex: 1;">${formatMessage(msg.message)}</span>
+                                <span style="color: #cbd5e1; font-size: 0.9rem; flex: 1;">${formattedMsg}</span>
                                 <span style="color: #64748b; font-size: 0.75rem; white-space: nowrap;">${timeAgo(msg.created_at)}</span>
                             </div>
                         `;
@@ -1359,16 +1360,30 @@ foreach ($teams as $team) {
             return div.innerHTML;
         }
 
-        function formatMessage(message) {
+        async function formatMessage(message) {
             // Check for /pic/filename pattern
             const picPattern = /\/pic\/([a-zA-Z0-9_-]+)/g;
             
             let formattedMessage = escapeHtml(message);
+            const matches = [...message.matchAll(picPattern)];
             
-            // Replace /pic/filename with actual image
-            formattedMessage = formattedMessage.replace(picPattern, (match, filename) => {
-                return `<img src="chat-images/${filename}.png" alt="${filename}" style="max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 4px; display: block;" onerror="this.outerHTML='${escapeHtml(match)}';">`;
-            });
+            // Check each image match
+            for (const match of matches) {
+                const filename = match[1];
+                try {
+                    const response = await fetch(`api/chat-image.php?name=${filename}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const imageTag = `<img src="${data.url}" alt="${filename}" style="max-width: 200px; max-height: 200px; border-radius: 8px; margin-top: 4px; display: block;">`;
+                        formattedMessage = formattedMessage.replace(escapeHtml(match[0]), imageTag);
+                    } else {
+                        formattedMessage = formattedMessage.replace(escapeHtml(match[0]), '<span style="color: #ef4444;">[pic not found]</span>');
+                    }
+                } catch (error) {
+                    formattedMessage = formattedMessage.replace(escapeHtml(match[0]), '<span style="color: #ef4444;">[pic not found]</span>');
+                }
+            }
             
             return formattedMessage;
         }

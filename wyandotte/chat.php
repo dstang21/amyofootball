@@ -429,7 +429,7 @@ $page_title = 'Wyandotte Football League - Chat';
                 .catch(error => console.error('Error loading chat:', error));
         }
 
-        function displayChatMessages(messages) {
+        async function displayChatMessages(messages) {
             const container = document.getElementById('chatMessages');
             if (messages.length === 0) {
                 container.innerHTML = '<p style="text-align: center; color: #94a3b8;">No messages yet. Be the first to chat!</p>';
@@ -438,16 +438,20 @@ $page_title = 'Wyandotte Football League - Chat';
 
             messages.reverse();
 
-            container.innerHTML = messages.map(msg => `
-                <div style="background: rgba(255,255,255,0.05); border-radius: 6px; padding: 8px 12px; margin-bottom: 6px; border-left: 2px solid #f97316;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <span style="color: #fbbf24; font-weight: bold; font-size: 0.85rem;">${escapeHtml(msg.username)}</span>
-                        <span style="color: #64748b; font-size: 0.75rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
+            const formattedMessages = await Promise.all(messages.map(async msg => {
+                const formattedMessage = await formatMessage(msg.message);
+                return `
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 6px; padding: 8px 12px; margin-bottom: 6px; border-left: 2px solid #f97316;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                            <span style="color: #fbbf24; font-weight: bold; font-size: 0.85rem;">${escapeHtml(msg.username)}</span>
+                            <span style="color: #64748b; font-size: 0.75rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
+                        </div>
+                        <div style="color: #cbd5e1; line-height: 1.4; font-size: 0.9rem;">${formattedMessage}</div>
                     </div>
-                    <div style="color: #cbd5e1; line-height: 1.4; font-size: 0.9rem;">${formatMessage(msg.message)}</div>
-                </div>
-            `).join('');
+                `;
+            }));
 
+            container.innerHTML = formattedMessages.join('');
             container.scrollTop = container.scrollHeight;
         }
 
@@ -505,16 +509,30 @@ $page_title = 'Wyandotte Football League - Chat';
             return div.innerHTML;
         }
 
-        function formatMessage(message) {
+        async function formatMessage(message) {
             // Check for /pic/filename pattern
             const picPattern = /\/pic\/([a-zA-Z0-9_-]+)/g;
             
             let formattedMessage = escapeHtml(message);
+            const matches = [...message.matchAll(picPattern)];
             
-            // Replace /pic/filename with actual image
-            formattedMessage = formattedMessage.replace(picPattern, (match, filename) => {
-                return `<img src="chat-images/${filename}.png" alt="${filename}" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 8px; display: block;" onerror="this.outerHTML='${escapeHtml(match)}';">`;
-            });
+            // Check each image match
+            for (const match of matches) {
+                const filename = match[1];
+                try {
+                    const response = await fetch(`api/chat-image.php?name=${filename}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const imageTag = `<img src="${data.url}" alt="${filename}" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 8px; display: block;">`;
+                        formattedMessage = formattedMessage.replace(escapeHtml(match[0]), imageTag);
+                    } else {
+                        formattedMessage = formattedMessage.replace(escapeHtml(match[0]), '<span style="color: #ef4444;">[pic not found]</span>');
+                    }
+                } catch (error) {
+                    formattedMessage = formattedMessage.replace(escapeHtml(match[0]), '<span style="color: #ef4444;">[pic not found]</span>');
+                }
+            }
             
             return formattedMessage;
         }
