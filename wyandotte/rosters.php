@@ -2117,7 +2117,7 @@ foreach ($teams as $team) {
                         
                         return `
                             <div style="background: ${bgColor}; padding: 14px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; position: relative; overflow: hidden;" onclick="openTeamModal(${team.team_id})" onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 6px 20px rgba(249,115,22,0.4)';" onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)';">
-                                ${logoUrl ? `<div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 350px; height: 350px; background-image: url('${logoUrl}'); background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 0.06; pointer-events: none; z-index: 0;"></div>` : ''}
+                                ${logoUrl ? `<div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-image: url('${logoUrl}'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.06; pointer-events: none; z-index: 0;"></div>` : ''}
                                 <div style="display: flex; align-items: center; gap: 18px; flex: 1; position: relative; z-index: 1;">
                                     <span style="color: #fbbf24; font-weight: bold; font-size: 1.3rem; min-width: 35px;">${rank}</span>
                                     <div style="flex: 1;">
