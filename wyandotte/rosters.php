@@ -2174,8 +2174,10 @@ foreach ($teams as $team) {
             const preview = document.getElementById('latestPlayPreview');
             const content = document.getElementById('latestPlayContent');
             
-            const pointsColor = play.points > 0 ? '#10b981' : play.points < 0 ? '#ef4444' : '#94a3b8';
-            const pointsSign = play.points > 0 ? '+' : '';
+            // Truncate description if too long
+            const shortDesc = play.description && play.description.length > 50 
+                ? play.description.substring(0, 50) + '...' 
+                : play.description;
             
             content.innerHTML = `
                 <span style="color: #ef4444; font-size: 1rem;">🔴 LIVE</span>
@@ -2183,7 +2185,7 @@ foreach ($teams as $team) {
                 <span style="color: #94a3b8;">•</span>
                 <span style="color: #f97316; font-weight: bold;">${play.play_type || 'Play'}</span>
                 <span style="color: #94a3b8;">•</span>
-                <span style="color: ${pointsColor}; font-weight: bold;">${pointsSign}${parseFloat(play.points).toFixed(1)} pts</span>
+                <span style="color: #cbd5e1; font-size: 0.8rem;">${shortDesc || ''}</span>
             `;
             
             // Show preview if not on chat or plays tab
