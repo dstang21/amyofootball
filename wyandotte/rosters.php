@@ -2217,5 +2217,12 @@ foreach ($teams as $team) {
         <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
         <img id="lightbox-img" src="" alt="Full size image">
     </div>
+    
+    <!-- Orangecat Analytics Tracking Code -->
+    <script>
+      var ANALYTICS_SITE_ID = 'your-website-name';
+      var ANALYTICS_ENDPOINT = 'https://orangecatdigital.com/api/analytics/track';
+    </script>
+    <script src="https://orangecatdigital.com/orangecat-analytics.js"></script>
 </body>
 </html>

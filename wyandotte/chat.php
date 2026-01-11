@@ -548,5 +548,12 @@ $page_title = 'Wyandotte Football League - Chat';
             return Math.floor(seconds / 86400) + 'd ago';
         }
     </script>
+    
+    <!-- Orangecat Analytics Tracking Code -->
+    <script>
+      var ANALYTICS_SITE_ID = 'your-website-name';
+      var ANALYTICS_ENDPOINT = 'https://orangecatdigital.com/api/analytics/track';
+    </script>
+    <script src="https://orangecatdigital.com/orangecat-analytics.js"></script>
 </body>
 </html>
