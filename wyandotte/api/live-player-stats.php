@@ -135,21 +135,37 @@ if (isset($scoreboard['events'])) {
                         $playerId = null;
                         $playerName = '';
                 
-                // Try to match player names in the description
-                // First try exact matches and abbreviated formats
-                foreach ($playerLookup as $pName => $pData) {
-                    if (stripos($description, $pName) !== false) {
-                        $playerId = $pData['id'];
-                        $playerName = $pData['full_name'];
-                        break;
+                // Extract player name from the BEGINNING of the description (before the action)
+                // Format is usually: "Player Name action..." or "Initial.LastName action..."
+                preg_match('/^([A-Z]\.[A-Za-z]+)/', $description, $matches);
+                $playStartName = $matches[1] ?? null;
+                
+                // Try to match player names - prioritize the name at start of play
+                if ($playStartName) {
+                    foreach ($playerLookup as $pName => $pData) {
+                        if (stripos($playStartName, $pName) !== false || stripos($pName, $playStartName) !== false) {
+                            $playerId = $pData['id'];
+                            $playerName = $pData['full_name'];
+                            break;
+                        }
+                    }
+                }
+                
+                // If still no match, try broader search in full description
+                if (!$playerId) {
+                    foreach ($playerLookup as $pName => $pData) {
+                        if (stripos($description, $pName) !== false) {
+                            $playerId = $pData['id'];
+                            $playerName = $pData['full_name'];
+                            break;
+                        }
                     }
                 }
                 
                 // If no roster match, auto-create player in database
                 if (!$playerId) {
-                    // Extract player name from description
-                    preg_match('/([A-Z]\.[A-Za-z]+)/', $description, $matches);
-                    $foundName = $matches[1] ?? 'Unknown Player';
+                    // Use the name from start of play
+                    $foundName = $playStartName ?? 'Unknown Player';
                     $playerName = $foundName;
                     
                     // Parse name (e.g., "J.Love" -> first: "J", last: "Love")
