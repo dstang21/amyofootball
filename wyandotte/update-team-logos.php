@@ -34,65 +34,59 @@ $nflLogos = [
     'SF' => 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
     'TB' => 'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png',
     'TEN' => 'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png',
-    'WAS' => 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png'
+    'WSH' => 'https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png'
 ];
 
-// Team name to NFL abbreviation mapping (based on Wyandotte teams)
-$teamMapping = [
-    'Rams' => 'LAR',
-    'Commanders' => 'WAS',
-    'Steelers' => 'PIT',
-    'Packers' => 'GB',
-    'Lions' => 'DET',
-    'Ravens' => 'BAL',
-    'Bills' => 'BUF',
-    'Texans' => 'HOU',
-    'Vikings' => 'MIN',
-    'Eagles' => 'PHI'
-];
+// First, add logo column if it doesn't exist
+try {
+    $pdo->exec("ALTER TABLE teams ADD COLUMN logo VARCHAR(500) DEFAULT NULL");
+    echo "<p style='color: green;'>✓ Logo column added to teams table</p>";
+} catch (PDOException $e) {
+    if (strpos($e->getMessage(), 'Duplicate column') !== false) {
+        echo "<p style='color: blue;'>Logo column already exists</p>";
+    } else {
+        echo "<p style='color: red;'>Error adding column: " . $e->getMessage() . "</p>";
+    }
+}
 
-// Get all teams
-$stmt = $pdo->query("SELECT id, team_name, logo FROM wyandotte_teams");
+// Get all NFL teams
+$stmt = $pdo->query("SELECT id, name, abbreviation, logo FROM teams");
 $teams = $stmt->fetchAll();
 
-echo "<h2>Updating Team Logos</h2>";
+echo "<h2>Updating NFL Team Logos</h2>";
 echo "<table border='1' cellpadding='10'>";
-echo "<tr><th>Team Name</th><th>NFL Team</th><th>Current Logo</th><th>New Logo</th><th>Status</th></tr>";
+echo "<tr><th>Team Name</th><th>Abbreviation</th><th>Current Logo</th><th>New Logo</th><th>Status</th></tr>";
+
+$updated = 0;
+$skipped = 0;
 
 foreach ($teams as $team) {
-    $teamName = $team['team_name'];
-    $nflAbbr = null;
-    $logoUrl = null;
-    
-    // Find matching NFL team
-    foreach ($teamMapping as $keyword => $abbr) {
-        if (stripos($teamName, $keyword) !== false) {
-            $nflAbbr = $abbr;
-            $logoUrl = $nflLogos[$abbr] ?? null;
-            break;
-        }
-    }
+    $abbr = strtoupper($team['abbreviation']);
+    $logoUrl = $nflLogos[$abbr] ?? null;
     
     echo "<tr>";
-    echo "<td>{$teamName}</td>";
-    echo "<td>" . ($nflAbbr ?? 'Not found') . "</td>";
-    echo "<td>" . ($team['logo'] ? "✓" : "Empty") . "</td>";
+    echo "<td>{$team['name']}</td>";
+    echo "<td>{$abbr}</td>";
+    echo "<td>" . ($team['logo'] ? "Has logo" : "Empty") . "</td>";
     
     if ($logoUrl) {
         echo "<td><img src='{$logoUrl}' width='50'></td>";
         
         // Update the database
-        $updateStmt = $pdo->prepare("UPDATE wyandotte_teams SET logo = ? WHERE id = ?");
+        $updateStmt = $pdo->prepare("UPDATE teams SET logo = ? WHERE id = ?");
         $updateStmt->execute([$logoUrl, $team['id']]);
         echo "<td style='color: green;'>✓ Updated</td>";
+        $updated++;
     } else {
-        echo "<td>No logo</td>";
-        echo "<td style='color: red;'>✗ Skipped</td>";
+        echo "<td>No logo found</td>";
+        echo "<td style='color: red;'>✗ Skipped (abbr: {$abbr})</td>";
+        $skipped++;
     }
     
     echo "</tr>";
 }
 
 echo "</table>";
-echo "<br><p><a href='rosters.php'>← Back to Rosters</a></p>";
+echo "<br><p><strong>Summary:</strong> Updated {$updated} teams, Skipped {$skipped} teams</p>";
+echo "<p><a href='rosters.php'>← Back to Rosters</a></p>";
 ?>
