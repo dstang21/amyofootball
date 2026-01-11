@@ -102,7 +102,20 @@ if (isset($_POST['batch_match'])) {
                     $error_count++;
                 }
             }
-        }Show 10 at a time
+        }
+        
+        $pdo->commit();
+        $success = "Matched $matched_count players successfully!";
+        if ($error_count > 0) {
+            $success .= " ($error_count errors)";
+        }
+    } catch (Exception $e) {
+        $pdo->rollback();
+        $error = "Error: " . $e->getMessage();
+    }
+}
+
+// Get unmatched players - Show 10 at a time
 $unmatched_query = $pdo->query("
     SELECT p.id, p.first_name, p.last_name, p.full_name, p.birth_date,
            pt.position, t.abbreviation as team_abbr
