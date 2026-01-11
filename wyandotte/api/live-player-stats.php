@@ -320,9 +320,23 @@ if (isset($scoreboard['events'])) {
                                 'long' => intval($parsedStats['LONG'] ?? 0),
                             ];
                         } elseif ($categoryName === 'defensive') {
-                            $total = intval($parsedStats['TOT'] ?? 0);
-                            $solo = intval($parsedStats['SOLO'] ?? 0);
-                            $assisted = max(0, $total - $solo); // Calculate assisted tackles
+                            // Check if tackles are in "SOLO/AST" format (e.g., "5/5")
+                            $solo = 0;
+                            $assisted = 0;
+                            
+                            if (isset($parsedStats['SOLO']) && strpos($parsedStats['SOLO'], '/') !== false) {
+                                // Format: "5/5" (solo/assisted)
+                                $tackleParts = explode('/', $parsedStats['SOLO']);
+                                $solo = intval($tackleParts[0] ?? 0);
+                                $assisted = intval($tackleParts[1] ?? 0);
+                            } else {
+                                // Separate fields
+                                $total = intval($parsedStats['TOT'] ?? 0);
+                                $solo = intval($parsedStats['SOLO'] ?? 0);
+                                $assisted = max(0, $total - $solo);
+                            }
+                            
+                            $total = $solo + $assisted;
                             
                             $allPlayerStats[$playerId]['stats']['defensive'] = [
                                 'tackles' => $total,
