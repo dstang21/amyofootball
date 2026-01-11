@@ -115,7 +115,7 @@ if (isset($_POST['batch_match'])) {
     }
 }
 
-// Get unmatched players - Show 10 at a time
+// Get unmatched players - Show 1 at a time
 $unmatched_query = $pdo->query("
     SELECT p.id, p.first_name, p.last_name, p.full_name, p.birth_date,
            pt.position, t.abbreviation as team_abbr
@@ -124,8 +124,8 @@ $unmatched_query = $pdo->query("
     LEFT JOIN teams t ON pt.team_id = t.id
     WHERE p.sleeper_id IS NULL OR p.sleeper_id = ''
     GROUP BY p.id
-    ORDER BY p.full_name
-    LIMIT 10
+    ORDER BY p.first_name, p.last_name
+    LIMIT 1
 ");
 $unmatched_players = $unmatched_query->fetchAll();
 
@@ -249,7 +249,7 @@ include 'admin-nav.php';
             </div>
             <div class="card-body">
                 <p style="margin-bottom: 20px; padding: 15px; background: #dbeafe; border-radius: 5px;">
-                    <strong>📋 Instructions:</strong> Review the suggested matches below. The system auto-selects the closest match. Adjust if needed, then click "Submit Matches" at the bottom.
+                    <strong>📋 Instructions:</strong> Review the suggested match below. The system auto-selects the closest match. Adjust if needed, then click "Submit Match" at the bottom.
                 </p>
                 
                 <form method="POST" id="batchMatchForm">
@@ -311,10 +311,10 @@ include 'admin-nav.php';
                     <div style="position: sticky; bottom: 0; background: white; padding: 20px; border-top: 3px solid #3b82f6; box-shadow: 0 -4px 6px rgba(0,0,0,0.1); border-radius: 10px; margin-top: 20px;">
                         <div style="display: flex; gap: 10px; justify-content: center;">
                             <button type="submit" class="btn btn-primary" style="font-size: 1.1em; padding: 15px 40px;">
-                                ✅ Submit Matches (<?php echo count($unmatched_players); ?>)
+                                ✅ Submit Match
                             </button>
                             <button type="button" class="btn btn-secondary" onclick="selectAllSkip()" style="padding: 15px 30px;">
-                                ⏭️ Skip All
+                                ⏭️ Skip This Player
                             </button>
                         </div>
                     </div>
