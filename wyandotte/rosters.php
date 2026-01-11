@@ -114,7 +114,7 @@ foreach ($teams as $team) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
         }
         .navbar {
             background: rgba(15,23,42,0.95);
@@ -292,6 +292,12 @@ foreach ($teams as $team) {
             justify-content: center;
             font-size: 2.5rem;
             border: 3px solid rgba(255,255,255,0.3);
+            overflow: hidden;
+        }
+        .team-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .team-name {
             font-size: 1.8rem;
@@ -859,6 +865,7 @@ foreach ($teams as $team) {
                 <button onclick="showTab('gallery')">Gallery</button>
                 <button onclick="showTab('stats')">League Stats</button>
                 <button onclick="showTab('analytics')">Analytics</button>
+                <a href="team-settings.php" style="padding: 12px 20px; background: rgba(249,115,22,0.3); border: 1px solid #f97316; border-radius: 8px; color: #fbbf24; text-decoration: none; display: inline-block; transition: all 0.3s; font-weight: 500; margin-left: 10px;">⚙️ Team Settings</a>
             </div>
         </div>
     </nav>
@@ -966,7 +973,13 @@ foreach ($teams as $team) {
                 ?>
                     <div class="team-card" data-team-name="<?php echo strtolower($team['team_name']); ?>" data-team-id="<?php echo $team['id']; ?>">
                         <div class="team-header" style="background: linear-gradient(135deg, <?php echo $colors['primary']; ?> 0%, <?php echo $colors['secondary']; ?> 100%);">
-                            <div class="team-logo"><?php echo $team_initials; ?></div>
+                            <div class="team-logo">
+                                <?php if (!empty($team['logo'])): ?>
+                                    <img src="<?php echo htmlspecialchars($team['logo']); ?>" alt="<?php echo htmlspecialchars($team['team_name']); ?>" onerror="this.parentElement.innerHTML='<?php echo $team_initials; ?>';">
+                                <?php else: ?>
+                                    <?php echo $team_initials; ?>
+                                <?php endif; ?>
+                            </div>
                             <div class="team-name"><?php echo htmlspecialchars($team['team_name']); ?></div>
                             <div class="team-owner">Owner: <?php echo htmlspecialchars($team['owner_name']); ?></div>
                             <div class="team-score" id="team-score-<?php echo $team['id']; ?>" style="margin-top: 10px; font-size: 1.5rem; font-weight: bold; color: #fff;">
@@ -2083,11 +2096,15 @@ foreach ($teams as $team) {
                         updateLatestPlayPreview(latestPlay);
                     } else {
                         document.getElementById('playsContainer').innerHTML = '<p style="text-align: center; color: #94a3b8;">No plays recorded yet</p>';
+                        // Hide preview if no plays
+                        document.getElementById('latestPlayPreview').style.display = 'none';
                     }
                 })
                 .catch(error => {
                     console.error('Error loading plays:', error);
                     document.getElementById('playsContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading plays</p>';
+                    // Hide preview on error
+                    document.getElementById('latestPlayPreview').style.display = 'none';
                 });
         }
 
