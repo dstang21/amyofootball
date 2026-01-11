@@ -160,22 +160,33 @@ if (isset($scoreboard['events'])) {
                     }
                 }
                 
-                // If no roster match, still create a play entry but with NULL player_id
+                // If no roster match, auto-create player in database
                 if (!$playerId) {
                     // Extract player name from description
                     preg_match('/([A-Z]\.[A-Za-z]+)/', $description, $matches);
                     $foundName = $matches[1] ?? 'Unknown Player';
-                    $playerName = $foundName;                    
-                    // Track missing player for console output
-                    if (!isset($missingPlayers[$foundName])) {
-                        $missingPlayers[$foundName] = 0;
+                    $playerName = $foundName;
+                    
+                    // Parse name (e.g., "J.Love" -> first: "J", last: "Love")
+                    $nameParts = explode('.', $foundName);
+                    $firstName = $nameParts[0] ?? 'Unknown';
+                    $lastName = $nameParts[1] ?? 'Player';
+                    $fullName = $firstName . '. ' . $lastName;
+                    
+                    // Insert new player into database
+                    try {
+                        $insertStmt = $pdo->prepare("
+                            INSERT INTO players (first_name, last_name, full_name)
+                            VALUES (?, ?, ?)
+                        ");
+                        $insertStmt->execute([$firstName, $lastName, $fullName]);
+                        $playerId = $pdo->lastInsertId();
+                        $playerName = $fullName;
+                        $missingPlayers[$foundName] = 'AUTO-ADDED';
+                    } catch (PDOException $e) {
+                        // If duplicate or error, track it
+                        $missingPlayers[$foundName] = 'ERROR: ' . $e->getMessage();
                     }
-                    $missingPlayers[$foundName]++;                    
-                    // Track missing player for console output
-                    if (!isset($missingPlayers[$foundName])) {
-                        $missingPlayers[$foundName] = 0;
-                    }
-                    $missingPlayers[$foundName]++;
                 }
                 
                 // Determine play type and points
