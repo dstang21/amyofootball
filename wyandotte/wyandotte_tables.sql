@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS wyandotte_rosters (
     id INT AUTO_INCREMENT PRIMARY KEY,
     team_id INT NOT NULL,
     player_id BIGINT UNSIGNED NOT NULL,
-    position ENUM('QB', 'RB', 'WR', 'TE', 'DB', 'LB', 'DL') NOT NULL,
+    position ENUM('QB', 'RB', 'WR', 'TE', 'K', 'DB', 'LB', 'DL') NOT NULL,
     slot_number INT NOT NULL COMMENT '1-9 for the 9 roster spots',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
