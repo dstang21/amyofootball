@@ -43,11 +43,23 @@ try {
             // Post-process to get team logos from game_info
             foreach ($plays as &$play) {
                 if (!$play['team_logo'] && $play['game_info']) {
-                    // Extract team abbreviations from game_info (format: "XXX @ YYY - Q1 12:34")
-                    if (preg_match('/([A-Z]+)\s*@\s*([A-Z]+)/', $play['game_info'], $matches)) {
-                        $awayTeam = $matches[1];
+                    // Extract drive team if available (format: "CHI | LAR @ GB - Q1 12:34")
+                    $driveTeam = null;
+                    if (preg_match('/^([A-Z]+)\s*\|/', $play['game_info'], $driveMatch)) {
+                        $driveTeam = $driveMatch[1];
+                    }
+                    
+                    // Use drive team first, otherwise fall back to home team
+                    if ($driveTeam) {
+                        $logoStmt = $pdo->prepare("SELECT logo FROM teams WHERE abbreviation = ? LIMIT 1");
+                        $logoStmt->execute([$driveTeam]);
+                        $logoResult = $logoStmt->fetch(PDO::FETCH_ASSOC);
+                        if ($logoResult) {
+                            $play['team_logo'] = $logoResult['logo'];
+                            $play['team_abbr'] = $driveTeam;
+                        }
+                    } else if (preg_match('/([A-Z]+)\s*@\s*([A-Z]+)/', $play['game_info'], $matches)) {
                         $homeTeam = $matches[2];
-                        // For now, try to get home team logo (could be improved to detect which team the player is on)
                         $logoStmt = $pdo->prepare("SELECT logo FROM teams WHERE abbreviation = ? LIMIT 1");
                         $logoStmt->execute([$homeTeam]);
                         $logoResult = $logoStmt->fetch(PDO::FETCH_ASSOC);
@@ -93,11 +105,23 @@ try {
             
             // Post-process to get team logo from game_info
             if ($play && !$play['team_logo'] && $play['game_info']) {
-                // Extract team abbreviations from game_info
-                if (preg_match('/([A-Z]+)\s*@\s*([A-Z]+)/', $play['game_info'], $matches)) {
-                    $awayTeam = $matches[1];
+                // Extract drive team if available (format: "CHI | LAR @ GB - Q1 12:34")
+                $driveTeam = null;
+                if (preg_match('/^([A-Z]+)\s*\|/', $play['game_info'], $driveMatch)) {
+                    $driveTeam = $driveMatch[1];
+                }
+                
+                // Use drive team first, otherwise fall back to home team
+                if ($driveTeam) {
+                    $logoStmt = $pdo->prepare("SELECT logo FROM teams WHERE abbreviation = ? LIMIT 1");
+                    $logoStmt->execute([$driveTeam]);
+                    $logoResult = $logoStmt->fetch(PDO::FETCH_ASSOC);
+                    if ($logoResult) {
+                        $play['team_logo'] = $logoResult['logo'];
+                        $play['team_abbr'] = $driveTeam;
+                    }
+                } else if (preg_match('/([A-Z]+)\s*@\s*([A-Z]+)/', $play['game_info'], $matches)) {
                     $homeTeam = $matches[2];
-                    // Try to get home team logo
                     $logoStmt = $pdo->prepare("SELECT logo FROM teams WHERE abbreviation = ? LIMIT 1");
                     $logoStmt->execute([$homeTeam]);
                     $logoResult = $logoStmt->fetch(PDO::FETCH_ASSOC);

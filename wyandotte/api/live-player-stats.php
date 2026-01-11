@@ -119,6 +119,9 @@ if (isset($scoreboard['events'])) {
         // Process ALL plays from drives (not just scoring plays)
         if (isset($boxScore['drives']['previous'])) {
             foreach ($boxScore['drives']['previous'] as $drive) {
+                // Get the team that has possession in this drive
+                $driveTeam = $drive['team']['abbreviation'] ?? null;
+                
                 if (isset($drive['plays'])) {
                     foreach ($drive['plays'] as $play) {
                         $playsProcessed++;
@@ -224,7 +227,8 @@ if (isset($scoreboard['events'])) {
                 // Get quarter and time
                 $period = $play['period']['number'] ?? 1;
                 $clock = $play['clock']['displayValue'] ?? '';
-                $gameContext = $gameInfo . ' - Q' . $period . ' ' . $clock;
+                // Include drive team in game context for proper team logo lookup
+                $gameContext = ($driveTeam ? $driveTeam . ' | ' : '') . $gameInfo . ' - Q' . $period . ' ' . $clock;
                 
                 // Insert play into database
                 try {
