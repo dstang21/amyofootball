@@ -75,7 +75,7 @@ if (isset($_POST['manual_match'])) {
     }
 }
 
-// Get unmatched players
+// Get unmatched players - LIMIT to 1 for performance
 $unmatched_query = $pdo->query("
     SELECT p.id, p.first_name, p.last_name, p.full_name, p.birth_date,
            pt.position, t.abbreviation as team_abbr
@@ -85,17 +85,18 @@ $unmatched_query = $pdo->query("
     WHERE p.sleeper_id IS NULL OR p.sleeper_id = ''
     GROUP BY p.id
     ORDER BY p.full_name
+    LIMIT 1
 ");
 $unmatched_players = $unmatched_query->fetchAll();
 
-// Get all sleeper players for dropdown
-$sleeper_players_query = $pdo->query("
-    SELECT player_id, first_name, last_name, position, team, college, age
-    FROM sleeper_players
-    WHERE position IS NOT NULL
-    ORDER BY last_name, first_name
-");
-$sleeper_players = $sleeper_players_query->fetchAll();
+// Get count of remaining unmatched
+$remaining_count = $pdo->query("
+    SELECT COUNT(DISTINCT p.id) 
+    FROM players p 
+    WHERE p.sleeper_id IS NULL OR p.sleeper_id = ''
+")->fetchColumn();
+
+// Don't load all sleeper players upfront - we'll use AJAX search instead
 
 // Get matched count
 $matched_count = $pdo->query("SELECT COUNT(*) FROM players WHERE sleeper_id IS NOT NULL AND sleeper_id != ''")->fetchColumn();
@@ -134,8 +135,8 @@ include 'admin-nav.php';
                     <div style="opacity: 0.9;">Matched Players</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="font-size: 2.5em; font-weight: bold;"><?php echo count($unmatched_players); ?></div>
-                    <div style="opacity: 0.9;">Unmatched Players</div>
+                    <div style="font-size: 2.5em; font-weight: bold;"><?php echo $remaining_count; ?></div>
+                    <div style="opacity: 0.9;">Players Remaining</div>
                 </div>
                 <div style="text-align: center;">
                     <div style="font-size: 2.5em; font-weight: bold;">
@@ -176,11 +177,11 @@ include 'admin-nav.php';
     <?php if (count($unmatched_players) > 0): ?>
         <div class="card">
             <div class="card-header">
-                <h3>👉 Manual Matching (<?php echo count($unmatched_players); ?> remaining)</h3>
+                <h3>👉 Match Next Player (<?php echo $remaining_count; ?> remaining)</h3>
             </div>
             <div class="card-body">
-                <p style="margin-bottom: 20px;">
-                    Match these players manually. Search for the player in Sleeper's database and enter their Player ID.
+                <p style="margin-bottom: 20px; padding: 15px; background: #dbeafe; border-radius: 5px;">
+                    <strong>📋 Instructions:</strong> Type to search for the player in Sleeper's database, or click "Auto-Find" to search automatically.
                 </p>
                 
                 <?php foreach ($unmatched_players as $index => $player): ?>
@@ -212,34 +213,27 @@ include 'admin-nav.php';
                                     <input type="hidden" name="manual_match" value="1">
                                     <input type="hidden" name="player_id" value="<?php echo $player['id']; ?>">
                                     
-                                    <div style="margin-bottom: 10px;">
-                                        <select name="sleeper_id" 
-                                                id="sleeper_select_<?php echo $player['id']; ?>"
-                                                class="sleeper-select"
-                                                style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 5px; font-size: 0.95em;"
-                                                required>
-                                            <option value="">-- Select Sleeper Player --</option>
-                                            <?php foreach ($sleeper_players as $sp): ?>
-                                                <option value="<?php echo $sp['player_id']; ?>"
-                                                        data-search="<?php echo strtolower($sp['first_name'] . ' ' . $sp['last_name'] . ' ' . $sp['position'] . ' ' . $sp['team']); ?>">
-                                                    <?php echo htmlspecialchars($sp['first_name'] . ' ' . $sp['last_name']); ?>
-                                                    - <?php echo $sp['position'] ?: '??'; ?>
-                                                    - <?php echo $sp['team'] ?: 'FA'; ?>
-                                                    <?php if ($sp['college']): ?>
-                                                        (<?php echo htmlspecialchars(substr($sp['college'], 0, 20)); ?>)
-                                                    <?php endif; ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
+                                    <div style="margin-bottom: 10px; position: relative;">
+                                        <input type="text" 
+                                               name="sleeper_search" 
+                                               id="sleeper_search_<?php echo $player['id']; ?>"
+                                               class="sleeper-search-input"
+                                               placeholder="Type to search Sleeper players..."
+                                               autocomplete="off"
+                                               style="width: 100%; padding: 12px; border: 2px solid #d1d5db; border-radius: 5px; font-size: 1em;">
+                                        <input type="hidden" name="sleeper_id" id="sleeper_id_<?php echo $player['id']; ?>" required>
+                                        <div id="search_results_<?php echo $player['id']; ?>" 
+                                             class="search-results"
+                                             style="display: none; position: absolute; z-index: 1000; background: white; border: 2px solid #d1d5db; border-top: none; border-radius: 0 0 5px 5px; max-height: 400px; overflow-y: auto; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
                                     </div>
                                     
                                     <div style="display: flex; gap: 10px;">
                                         <button type="submit" class="btn btn-primary" style="flex: 1;">
-                                            Match Player
+                                            Match Player & Continue →
                                         </button>
                                         <button type="button" 
                                                 class="btn btn-secondary" 
-                                                onclick="autoFillSelect('<?php echo addslashes($player['full_name']); ?>', <?php echo $player['id']; ?>)"
+                                                onclick="autoSearch('<?php echo addslashes($player['full_name']); ?>', <?php echo $player['id']; ?>)"
                                                 style="white-space: nowrap;">
                                             🔍 Auto-Find
                                         </button>
@@ -263,67 +257,94 @@ include 'admin-nav.php';
 </div>
 
 <script>
-function autoFillSelect(playerName, playerId) {
-    const select = document.getElementById('sleeper_select_' + playerId);
-    const searchTerm = playerName.toLowerCase();
-    
-    // Try to find exact match first
-    for (let i = 0; i < select.options.length; i++) {
-        const option = select.options[i];
-        const optionText = option.textContent.toLowerCase();
-        
-        if (optionText.includes(searchTerm)) {
-            select.selectedIndex = i;
-            select.style.background = '#fef3c7';
-            setTimeout(() => {
-                select.style.background = '';
-            }, 1000);
-            return;
-        }
-    }
-    
-    // Try partial match on last name
-    const lastName = searchTerm.split(' ').pop();
-    for (let i = 0; i < select.options.length; i++) {
-        const option = select.options[i];
-        const optionText = option.textContent.toLowerCase();
-        
-        if (optionText.includes(lastName)) {
-            select.selectedIndex = i;
-            select.style.background = '#fef3c7';
-            setTimeout(() => {
-                select.style.background = '';
-            }, 1000);
-            return;
-        }
-    }
-    
-    alert('No matching Sleeper player found. Please select manually.');
+<script>
+function autoSearch(playerName, playerId) {
+    const searchInput = document.getElementById('sleeper_search_' + playerId);
+    searchInput.value = playerName;
+    searchSleeperPlayers(playerName, playerId);
 }
 
-// Make select boxes searchable
-document.addEventListener('DOMContentLoaded', function() {
-    const selects = document.querySelectorAll('.sleeper-select');
-    selects.forEach(select => {
-        select.addEventListener('keydown', function(e) {
-            // Allow typing to search
-            if (e.key.length === 1) {
-                const searchTerm = e.key.toLowerCase();
-                for (let i = 0; i < this.options.length; i++) {
-                    const option = this.options[i];
-                    const text = option.textContent.toLowerCase();
-                    if (text.startsWith(searchTerm)) {
-                        this.selectedIndex = i;
-                        break;
-                    }
-                }
+function searchSleeperPlayers(query, playerId) {
+    const resultsDiv = document.getElementById('search_results_' + playerId);
+    
+    if (query.length < 2) {
+        resultsDiv.style.display = 'none';
+        return;
+    }
+    
+    resultsDiv.innerHTML = '<div style="padding: 15px; color: #6b7280; text-align: center;">Searching...</div>';
+    resultsDiv.style.display = 'block';
+    
+    fetch(`sleeper-api.php?action=search_players&query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.players && data.players.length > 0) {
+                let html = '';
+                data.players.forEach(player => {
+                    const fullName = (player.first_name || '') + ' ' + (player.last_name || '');
+                    const team = player.team || 'FA';
+                    const pos = player.position || '??';
+                    const age = player.age ? ` - Age ${player.age}` : '';
+                    const college = player.college ? ` - ${player.college}` : '';
+                    
+                    html += `
+                        <div class="search-result-item" 
+                             style="padding: 12px; cursor: pointer; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;"
+                             onclick="selectPlayer('${player.player_id}', '${fullName.replace(/'/g, "\\'")}', ${playerId})"
+                             onmouseover="this.style.background='#f3f4f6'"
+                             onmouseout="this.style.background='white'">
+                            <div>
+                                <strong style="font-size: 1.1em;">${fullName}</strong>
+                                <div style="color: #6b7280; font-size: 0.9em; margin-top: 4px;">
+                                    <span class="position-badge position-${pos.toLowerCase()}" style="display: inline-block; padding: 2px 8px; border-radius: 3px; margin-right: 8px;">${pos}</span>
+                                    ${team}${age}${college}
+                                </div>
+                            </div>
+                            <code style="background: #e5e7eb; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">${player.player_id}</code>
+                        </div>
+                    `;
+                });
+                resultsDiv.innerHTML = html;
+            } else {
+                resultsDiv.innerHTML = '<div style="padding: 15px; color: #dc2626; text-align: center;">No matches found</div>';
             }
+        })
+        .catch(error => {
+            resultsDiv.innerHTML = '<div style="padding: 15px; color: #dc2626; text-align: center;">Error searching</div>';
+            console.error('Search error:', error);
+        });
+}
+
+function selectPlayer(sleeperId, playerName, playerId) {
+    document.getElementById('sleeper_id_' + playerId).value = sleeperId;
+    document.getElementById('sleeper_search_' + playerId).value = playerName;
+    document.getElementById('search_results_' + playerId).style.display = 'none';
+    
+    // Highlight the hidden input to show it's selected
+    const searchInput = document.getElementById('sleeper_search_' + playerId);
+    searchInput.style.background = '#dcfce7';
+    searchInput.style.borderColor = '#16a34a';
+}
+
+// Add live search on typing
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInputs = document.querySelectorAll('.sleeper-search-input');
+    searchInputs.forEach(input => {
+        let searchTimeout;
+        input.addEventListener('input', function() {
+            const playerId = this.id.split('_').pop();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchSleeperPlayers(this.value, playerId);
+            }, 300);
         });
     });
-// Close suggestions when clicking outside
+});
+
+// Close search results when clicking outside
 document.addEventListener('click', function(e) {
-    if (!e.target.classList.contains('sleeper-search-input')) {
-        document.querySelectorAll('.search-suggestions').forEach(el => {
+    if (!e.target.classList.contains('sleeper-search-input') && !e.target.closest('.search-results')) {
+        document.querySelectorAll('.search-results').forEach(el => {
             el.style.display = 'none';
         });
     }
