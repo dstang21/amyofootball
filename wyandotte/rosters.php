@@ -839,10 +839,28 @@ foreach ($teams as $team) {
 <body>
     <?php include __DIR__ . '/includes/live-ticker.php'; ?>
     
-    <div class="header">
-        <h1><a href="index.php" style="color: white; text-decoration: none; cursor: pointer;">&#127944; WYANDOTTE</a></h1>
-        <p><?php echo count($teams); ?> Teams</p>
-    </div>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <img src="../amyofootball_logo.png" alt="Amyofootball" class="navbar-logo">
+                <a href="index.php" class="navbar-home">Home</a>
+            </div>
+            <button class="hamburger" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-tabs" id="navTabs">
+                <button class="active" onclick="showTab('live')">Live Scores</button>
+                <button onclick="showTab('rosters')">Rosters</button>
+                <button onclick="showTab('playerStats')">Player Stats</button>
+                <button onclick="showTab('chat')">Chat</button>
+                <button onclick="showTab('gallery')">Gallery</button>
+                <button onclick="showTab('stats')">League Stats</button>
+                <button onclick="showTab('analytics')">Analytics</button>
+            </div>
+        </div>
+    </nav>
 
     <!-- Team Details Modal -->
     <div id="teamModal" class="team-modal" onclick="closeTeamModal(event)">
@@ -860,16 +878,6 @@ foreach ($teams as $team) {
                 Loading...
             </div>
         </div>
-    </div>
-
-    <div class="nav-tabs">
-        <button class="active" onclick="showTab('live')">Live Scores</button>
-        <button onclick="showTab('rosters')">Rosters</button>
-        <button onclick="showTab('playerStats')">Player Stats</button>
-        <button onclick="showTab('chat')">Chat</button>
-        <button onclick="showTab('gallery')">Gallery</button>
-        <button onclick="showTab('stats')">League Stats</button>
-        <button onclick="showTab('analytics')">Analytics</button>
     </div>
 
     <!-- Latest Chat Preview -->
