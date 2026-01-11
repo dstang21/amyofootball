@@ -1,6 +1,7 @@
 <?php
 error_reporting(0);
 ini_set('display_errors', 0);
+ob_start(); // Catch any stray output
 header('Content-Type: application/json');
 require_once dirname(__DIR__, 2) . '/config.php';
 
@@ -10,6 +11,7 @@ $cacheTime = 60; // Cache for 60 seconds
 
 // Check cache
 if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheTime) {
+    ob_end_clean(); // Clear buffer before cached response
     echo file_get_contents($cacheFile);
     exit;
 }
@@ -354,4 +356,5 @@ if (!is_dir(__DIR__ . '/../cache')) {
 }
 file_put_contents($cacheFile, json_encode($result));
 
+ob_end_clean(); // Clear any captured output
 echo json_encode($result);
