@@ -1919,11 +1919,8 @@ foreach ($teams as $team) {
                         if (sync.drive_team_debug && sync.drive_team_debug.length > 0) {
                             console.log('🏟️ DRIVE TEAM DATA (first 5 drives):');
                             sync.drive_team_debug.forEach((drive, index) => {
-                                console.log(`  Drive ${index + 1}:`, {
-                                    extracted_team: drive.drive_team,
-                                    team_object: drive.team_data,
-                                    description: drive.description
-                                });
+                                console.log(`  Drive ${index + 1}: Team=${drive.drive_team}, Desc=${drive.description}`);
+                                console.log('    Full team object:', drive.team_data);
                             });
                         }
                     }
