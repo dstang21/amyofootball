@@ -119,12 +119,12 @@ foreach ($teams as $team) {
         .navbar {
             background: rgba(15,23,42,0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid rgba(249,115,22,0.3);
+            border-bottom: 1px solid rgba(249,115,22,0.3);
             padding: 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .navbar-container {
             max-width: 1400px;
@@ -132,27 +132,27 @@ foreach ($teams as $team) {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 15px;
         }
         .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 10px 0;
+            gap: 10px;
+            padding: 8px 0;
         }
         .navbar-logo {
-            height: 50px;
+            height: 40px;
             width: auto;
         }
         .navbar-home {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: rgba(249,115,22,0.2);
             border: 1px solid #f97316;
-            border-radius: 6px;
+            border-radius: 4px;
             color: #fbbf24;
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             transition: all 0.3s;
         }
         .navbar-home:hover {
