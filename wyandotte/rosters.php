@@ -1239,6 +1239,15 @@ foreach ($teams as $team) {
             // Add active to clicked button
             event.target.classList.add('active');
 
+            // Hide/show latest chat preview based on tab
+            const latestChatPreview = document.getElementById('latestChatPreview');
+            if (tabName === 'chat') {
+                latestChatPreview.style.display = 'none';
+            } else if (latestChatPreview.innerHTML.trim() !== '') {
+                // Only show if there's content and not on chat tab
+                latestChatPreview.style.display = 'block';
+            }
+
             // Live scores always run in background - just refresh when viewing tab
             if (tabName === 'live') {
                 updateLiveScores();
