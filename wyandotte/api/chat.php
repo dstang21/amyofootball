@@ -41,8 +41,11 @@ try {
     } elseif ($action === 'get') {
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
         
-        $stmt = $pdo->prepare("SELECT * FROM wyandotte_chat ORDER BY created_at DESC LIMIT ?");
-        $stmt->execute([$limit]);
+        // Validate limit is a positive integer
+        if ($limit < 1) $limit = 50;
+        if ($limit > 500) $limit = 500;
+        
+        $stmt = $pdo->query("SELECT * FROM wyandotte_chat ORDER BY created_at DESC LIMIT " . $limit);
         $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         ob_clean();
