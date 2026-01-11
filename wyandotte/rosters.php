@@ -1900,17 +1900,15 @@ foreach ($teams as $team) {
 
         // Update roster stats inline
         function updateRosterStats() {
-            console.log('🔄 Updating roster stats and checking for plays...');
             // First get player stats
             fetch('api/live-player-stats.php')
                 .then(response => response.json())
                 .then(statsData => {
-                    // Log plays sync info to console
+                    // Uncomment below for debugging
+                    /*
                     if (statsData.plays_sync) {
                         const sync = statsData.plays_sync;
                         console.log(`🏈 PLAYS SYNC: Processed=${sync.processed}, Inserted=${sync.inserted}, Skipped=${sync.skipped}`);
-                        // Uncomment below for debugging
-                        /*
                         if (sync.errors && sync.errors.length > 0) {
                             console.error('❌ Play Sync Errors:', sync.errors);
                         }
@@ -1925,8 +1923,8 @@ foreach ($teams as $team) {
                                 console.log('    Full team object:', drive.team_data);
                             });
                         }
-                        */
                     }
+                    */
                     
                     if (!statsData.success || !statsData.players) return;
 
