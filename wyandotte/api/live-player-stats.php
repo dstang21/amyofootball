@@ -320,9 +320,14 @@ if (isset($scoreboard['events'])) {
                                 'long' => intval($parsedStats['LONG'] ?? 0),
                             ];
                         } elseif ($categoryName === 'defensive') {
+                            $total = intval($parsedStats['TOT'] ?? 0);
+                            $solo = intval($parsedStats['SOLO'] ?? 0);
+                            $assisted = max(0, $total - $solo); // Calculate assisted tackles
+                            
                             $allPlayerStats[$playerId]['stats']['defensive'] = [
-                                'tackles' => intval($parsedStats['TOT'] ?? 0),
-                                'solo' => intval($parsedStats['SOLO'] ?? 0),
+                                'tackles' => $total,
+                                'solo' => $solo,
+                                'assisted' => $assisted,
                                 'sacks' => floatval($parsedStats['SACKS'] ?? 0),
                                 'interceptions' => intval($parsedStats['INT'] ?? 0),
                             ];

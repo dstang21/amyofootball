@@ -89,17 +89,21 @@ foreach ($liveData['players'] as $player) {
     // Calculate defensive points
     if (isset($player['stats']['defensive'])) {
         $d = $player['stats']['defensive'];
-        $tackles = intval($d['tackles'] ?? 0);
+        $soloTackles = intval($d['solo'] ?? 0);
+        $assistedTackles = intval($d['assisted'] ?? 0);
+        $totalTackles = intval($d['tackles'] ?? 0);
         $sacks = floatval($d['sacks'] ?? 0);
         $ints = intval($d['interceptions'] ?? 0);
         
-        $tacklePoints = $tackles * ($scoringSettings['tackle_solo'] ?? 0);
+        $soloTacklePoints = $soloTackles * ($scoringSettings['tackle_solo'] ?? 0);
+        $assistedTacklePoints = $assistedTackles * ($scoringSettings['tackle_assist'] ?? 0);
+        $tacklePoints = $soloTacklePoints + $assistedTacklePoints;
         $sackPoints = $sacks * ($scoringSettings['sack'] ?? 0);
         $intPoints = $ints * ($scoringSettings['interception'] ?? 0);
         
         $totalPoints += $tacklePoints + $sackPoints + $intPoints;
         $breakdown['defensive'] = [
-            'tackles' => ['value' => $tackles, 'points' => round($tacklePoints, 2)],
+            'tackles' => ['value' => $totalTackles, 'points' => round($tacklePoints, 2), 'detail' => "$soloTackles solo ($soloTacklePoints pts), $assistedTackles ast (" . round($assistedTacklePoints, 1) . " pts)"],
             'sacks' => ['value' => $sacks, 'points' => round($sackPoints, 2)],
             'ints' => ['value' => $ints, 'points' => round($intPoints, 2)]
         ];
