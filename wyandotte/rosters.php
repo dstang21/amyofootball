@@ -854,6 +854,7 @@ foreach ($teams as $team) {
                 <button class="active" onclick="showTab('live')">Live Scores</button>
                 <button onclick="showTab('rosters')">Rosters</button>
                 <button onclick="showTab('playerStats')">Player Stats</button>
+                <button onclick="showTab('plays')">Latest Plays</button>
                 <button onclick="showTab('chat')">Chat</button>
                 <button onclick="showTab('gallery')">Gallery</button>
                 <button onclick="showTab('stats')">League Stats</button>
@@ -892,6 +893,13 @@ foreach ($teams as $team) {
         <div style="display: flex; gap: 8px;">
             <input type="text" id="quickChatMessage" placeholder="Send a quick message..." style="flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(249,115,22,0.5); background: rgba(255,255,255,0.1); color: white; font-size: 0.9rem;" onkeypress="if(event.key==='Enter') sendQuickChat()">
             <button onclick="sendQuickChat()" style="padding: 8px 16px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Send</button>
+        </div>
+    </div>
+
+    <!-- Latest Play Preview -->
+    <div id="latestPlayPreview" style="max-width: 800px; margin: 0 auto 15px; background: rgba(0,0,0,0.5); border-radius: 8px; padding: 10px 15px; border: 1px solid rgba(251,191,36,0.3); display: none;">
+        <div id="latestPlayContent" style="color: #cbd5e1; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+            Loading...
         </div>
     </div>
 
