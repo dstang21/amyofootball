@@ -49,6 +49,21 @@ $playerLookup = [];
 foreach ($rosteredPlayers as $player) {
     $key = strtolower($player['full_name']);
     $playerLookup[$key] = $player;
+    
+    // Add first initial + last name format (e.g., "j.love" for "Jordan Love")
+    $nameParts = explode(' ', $player['full_name']);
+    if (count($nameParts) >= 2) {
+        $firstInitial = strtolower(substr($nameParts[0], 0, 1));
+        $lastName = strtolower($nameParts[count($nameParts) - 1]);
+        $abbreviated = $firstInitial . '.' . $lastName;
+        $playerLookup[$abbreviated] = $player;
+    }
+    
+    // Add last name only
+    if (count($nameParts) >= 2) {
+        $lastName = strtolower($nameParts[count($nameParts) - 1]);
+        $playerLookup[$lastName] = $player;
+    }
 }
 
 // Get existing play descriptions to avoid duplicates
@@ -134,10 +149,13 @@ if (isset($scoreboard['events'])) {
                 // Extract player name from play text
                 $playerId = null;
                 $playerName = '';
+                
+                // Try to match player names in the description
+                // First try exact matches and abbreviated formats
                 foreach ($playerLookup as $pName => $pData) {
                     if (stripos($description, $pName) !== false) {
                         $playerId = $pData['id'];
-                        $playerName = $pName;
+                        $playerName = $pData['full_name'];
                         break;
                     }
                 }
@@ -145,7 +163,10 @@ if (isset($scoreboard['events'])) {
                 // Skip if player not on any roster
                 if (!$playerId) {
                     $playsSkipped++;
-                    $playErrors[] = "Player not found in roster: $description";
+                    // Extract player name from description for better error message
+                    preg_match('/([A-Z]\.[A-Za-z]+)/', $description, $matches);
+                    $foundName = $matches[1] ?? 'Unknown';
+                    $playErrors[] = "Player not rostered: $foundName - " . substr($description, 0, 50) . "...";
                     continue;
                 }
                 
