@@ -12,19 +12,18 @@ function getShortIp() {
 }
 
 if ($action === 'post' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    
-    $username = trim($data['username'] ?? 'Anonymous');
-    $message = trim($data['message'] ?? '');
-    $avatar = $data['avatar'] ?? 'football';
+    // Handle FormData from JavaScript
+    $username = trim($_POST['username'] ?? 'Anonymous');
+    $message = trim($_POST['message'] ?? '');
+    $avatar = $_POST['avatar'] ?? 'football';
     
     if (empty($message)) {
-        echo json_encode(['error' => 'Message cannot be empty']);
+        echo json_encode(['success' => false, 'error' => 'Message cannot be empty']);
         exit;
     }
     
     if (strlen($message) > 500) {
-        echo json_encode(['error' => 'Message too long (max 500 characters)']);
+        echo json_encode(['success' => false, 'error' => 'Message too long (max 500 characters)']);
         exit;
     }
     
