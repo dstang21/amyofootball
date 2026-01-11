@@ -600,6 +600,143 @@ foreach ($teams as $team) {
             font-weight: bold;
             cursor: pointer;
         }
+        .team-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .team-modal.active {
+            display: flex;
+        }
+        .team-modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid rgba(249,115,22,0.3);
+        }
+        .team-modal-header {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .team-modal-header h2 {
+            color: white;
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .team-modal-header p {
+            color: rgba(255,255,255,0.9);
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        .team-modal-score {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .team-modal-score-label {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .team-modal-score-value {
+            color: #fbbf24;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 0 2px 8px rgba(251,191,36,0.5);
+        }
+        .team-modal-body {
+            padding: 30px;
+        }
+        .modal-player-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #f97316;
+            transition: all 0.3s;
+        }
+        .modal-player-item:hover {
+            background: rgba(0,0,0,0.4);
+            transform: translateX(5px);
+        }
+        .modal-player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .modal-player-name {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .modal-player-position {
+            background: #f97316;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .modal-player-points {
+            color: #fbbf24;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(251,191,36,0.3);
+        }
+        .modal-player-stats {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+        .modal-player-team {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+        .modal-close:hover {
+            background: #f97316;
+            border-color: #f97316;
+            transform: rotate(90deg);
+        }
     </style>
 </head>
 <body>
@@ -608,6 +745,24 @@ foreach ($teams as $team) {
     <div class="header">
         <h1>&#127944; WYANDOTTE</h1>
         <p><?php echo count($teams); ?> Teams</p>
+    </div>
+
+    <!-- Team Details Modal -->
+    <div id="teamModal" class="team-modal" onclick="closeTeamModal(event)">
+        <div class="team-modal-content" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeTeamModal()">&times;</span>
+            <div class="team-modal-header">
+                <h2 id="modalTeamName">Team Name</h2>
+                <p id="modalOwnerName">Owner Name</p>
+                <div class="team-modal-score">
+                    <div class="team-modal-score-label">Total Points</div>
+                    <div class="team-modal-score-value" id="modalTotalScore">0.0</div>
+                </div>
+            </div>
+            <div class="team-modal-body" id="modalPlayersList">
+                Loading...
+            </div>
+        </div>
     </div>
 
     <div class="nav-tabs">
@@ -1266,6 +1421,9 @@ foreach ($teams as $team) {
                         return;
                     }
 
+                    // Store for modal access
+                    currentTeamScores = data.team_scores;
+
                     // Update leaderboard
                     const scoresHtml = data.team_scores.map((team, index) => {
                         const rank = index + 1;
@@ -1275,7 +1433,7 @@ foreach ($teams as $team) {
                         const borderColor = isFirst ? '#f97316' : 'rgba(249,115,22,0.3)';
                         
                         return `
-                            <div style="background: ${bgColor}; padding: 14px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                            <div style="background: ${bgColor}; padding: 14px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid ${borderColor}; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;" onclick="openTeamModal(${team.team_id})" onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 6px 20px rgba(249,115,22,0.4)';" onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)';">
                                 <div style="display: flex; align-items: center; gap: 18px; flex: 1;">
                                     <span style="color: #fbbf24; font-weight: bold; font-size: 1.3rem; min-width: 35px;">${rank}</span>
                                     <div style="flex: 1;">
@@ -1321,10 +1479,84 @@ foreach ($teams as $team) {
             document.getElementById('lightbox').classList.remove('active');
         }
 
+        // Team modal functionality
+        let currentTeamScores = null;
+
+        function openTeamModal(teamId) {
+            if (!currentTeamScores) return;
+            
+            const team = currentTeamScores.find(t => t.team_id === teamId);
+            if (!team) return;
+
+            document.getElementById('modalTeamName').textContent = team.team_name;
+            document.getElementById('modalOwnerName').textContent = 'Owner: ' + team.owner_name;
+            document.getElementById('modalTotalScore').textContent = team.total_points.toFixed(1);
+
+            // Build players list
+            let playersHtml = '';
+            if (team.players && team.players.length > 0) {
+                team.players.forEach(player => {
+                    let statsHtml = [];
+                    
+                    // Passing stats
+                    if (player.breakdown.passing) {
+                        const p = player.breakdown.passing;
+                        statsHtml.push(`<strong>Passing:</strong> ${p.yards.value} YDS (${p.yards.points} pts), ${p.tds.value} TD (${p.tds.points} pts), ${p.ints.value} INT (${p.ints.points} pts)`);
+                    }
+                    
+                    // Rushing stats
+                    if (player.breakdown.rushing) {
+                        const r = player.breakdown.rushing;
+                        statsHtml.push(`<strong>Rushing:</strong> ${r.yards.value} YDS (${r.yards.points} pts), ${r.tds.value} TD (${r.tds.points} pts)`);
+                    }
+                    
+                    // Receiving stats
+                    if (player.breakdown.receiving) {
+                        const rec = player.breakdown.receiving;
+                        statsHtml.push(`<strong>Receiving:</strong> ${rec.receptions.value} REC (${rec.receptions.points} pts), ${rec.yards.value} YDS (${rec.yards.points} pts), ${rec.tds.value} TD (${rec.tds.points} pts)`);
+                    }
+                    
+                    // Defensive stats
+                    if (player.breakdown.defensive) {
+                        const d = player.breakdown.defensive;
+                        statsHtml.push(`<strong>Defense:</strong> ${d.tackles.value} TKL (${d.tackles.points} pts), ${d.sacks.value} SCK (${d.sacks.points} pts), ${d.ints.value} INT (${d.ints.points} pts)`);
+                    }
+
+                    const liveIndicator = player.is_live ? '<span style="color: #ef4444; font-weight: bold;"> 🔴 LIVE</span>' : '';
+                    
+                    playersHtml += `
+                        <div class="modal-player-item">
+                            <div class="modal-player-header">
+                                <div>
+                                    <span class="modal-player-name">${player.name}</span>
+                                    <span class="modal-player-team">${player.team} - ${player.position}</span>
+                                    ${liveIndicator}
+                                </div>
+                                <span class="modal-player-points">${player.total_points.toFixed(1)}</span>
+                            </div>
+                            ${statsHtml.length > 0 ? `<div class="modal-player-stats">${statsHtml.join('<br>')}</div>` : '<div class="modal-player-stats">No stats yet</div>'}
+                        </div>
+                    `;
+                });
+            } else {
+                playersHtml = '<p style="text-align: center; color: #94a3b8;">No players on this roster yet</p>';
+            }
+
+            document.getElementById('modalPlayersList').innerHTML = playersHtml;
+            document.getElementById('teamModal').classList.add('active');
+        }
+
+        function closeTeamModal(event) {
+            if (!event || event.target.id === 'teamModal') {
+                document.getElementById('teamModal').classList.remove('active');
+            }
+        }
+
         // Close lightbox on ESC key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeLightbox();
+                closeTeamModal();
             }
         });
     </script>
