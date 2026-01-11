@@ -949,7 +949,7 @@ foreach ($teams as $team) {
             <!-- Live Scores Leaderboard -->
             <div id="scoresLeaderboard" style="margin: 0 auto 30px; max-width: 800px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 15px; padding: 25px; border: 2px solid rgba(255,255,255,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
                 <h2 style="text-align: center; color: white; margin-bottom: 25px; font-size: 1.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">🏆 Current Standings</h2>
-                <div id="scoresContent" style="display: flex; flex-direction: column; gap: 10px;">
+                <div id="scoresContent" style="display: flex; flex-direction: column; gap: 10px; max-height: 500px; overflow-y: auto;">
                     <p style="text-align: center; color: white;">Loading scores...</p>
                 </div>
             </div>
@@ -1236,7 +1236,7 @@ foreach ($teams as $team) {
             </div>
 
             <!-- Chat Messages -->
-            <div id="chatMessages" style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; min-height: 400px; max-height: 600px; overflow-y: auto; border: 1px solid rgba(249,115,22,0.3);">
+            <div id="chatMessages" style="background: rgba(0,0,0,0.5); border-radius: 15px; padding: 20px; min-height: 300px; max-height: 500px; overflow-y: auto; border: 1px solid rgba(249,115,22,0.3);">
                 <p style="text-align: center; color: #94a3b8;">Loading messages...</p>
             </div>
         </div>
