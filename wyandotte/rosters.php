@@ -2220,7 +2220,7 @@ foreach ($teams as $team) {
     
     <!-- Orangecat Analytics Tracking Code -->
     <script>
-      var ANALYTICS_SITE_ID = 'your-website-name';
+      var ANALYTICS_SITE_ID = 'Amyofootball';
       var ANALYTICS_ENDPOINT = 'https://orangecatdigital.com/api/analytics/track';
     </script>
     <script src="https://orangecatdigital.com/orangecat-analytics.js"></script>
