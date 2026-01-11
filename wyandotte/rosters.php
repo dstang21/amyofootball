@@ -1249,7 +1249,7 @@ foreach ($teams as $team) {
         let livePlayerStatsInterval;
         let rosterStatsInterval;
         let selectedAvatar = localStorage.getItem('chatAvatar') || 'football';
-        let chatUsername = localStorage.getItem('chatUsername') || '';
+        let chatUsername = sessionStorage.getItem('chatUsername') || '';
         let chatUserId = localStorage.getItem('chatUserId') || '';
         let chatRefreshInterval;
         let avatarChosen = sessionStorage.getItem('avatarChosen') === 'true';
@@ -1279,11 +1279,10 @@ foreach ($teams as $team) {
 
         // Assign default name if user doesn't have one
         if (!chatUsername) {
-            // Use first 6 chars of user ID as seed for name index
-            const seed = parseInt(chatUserId.substring(0, 6), 36);
-            const nameIndex = seed % defaultNames.length;
-            chatUsername = defaultNames[nameIndex];
-            localStorage.setItem('chatUsername', chatUsername);
+            // Pick a random name for this session
+            const randomIndex = Math.floor(Math.random() * defaultNames.length);
+            chatUsername = defaultNames[randomIndex];
+            sessionStorage.setItem('chatUsername', chatUsername);
         }
 
         const avatarMap = {
@@ -1396,7 +1395,7 @@ foreach ($teams as $team) {
             });
         });
 
-        // Load username from localStorage
+        // Load username from sessionStorage
         if (chatUsername) {
             document.getElementById('chatUsername').value = chatUsername;
         }
@@ -1586,8 +1585,8 @@ foreach ($teams as $team) {
                 return;
             }
 
-            // Save username to localStorage
-            localStorage.setItem('chatUsername', username);
+            // Save username to sessionStorage
+            sessionStorage.setItem('chatUsername', username);
             chatUsername = username;
 
             const formData = new FormData();
