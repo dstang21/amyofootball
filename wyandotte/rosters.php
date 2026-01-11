@@ -156,6 +156,31 @@ foreach ($teams as $team) {
         .navbar-home:hover {
             background: rgba(251,191,36,0.2);
         }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #f97316;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
         .nav-tabs {
             display: flex;
             gap: 5px;
@@ -181,6 +206,34 @@ foreach ($teams as $team) {
             color: #f97316;
             border-bottom-color: #f97316;
             font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-wrap: wrap;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .nav-tabs {
+                width: 100%;
+                flex-direction: column;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+            }
+            .nav-tabs.mobile-open {
+                max-height: 500px;
+            }
+            .nav-tabs button, .nav-tabs a {
+                width: 100%;
+                text-align: left;
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(249,115,22,0.2);
+            }
+            .navbar-logo {
+                height: 32px;
+            }
         }
         .tab-content {
             display: none;
@@ -790,7 +843,12 @@ foreach ($teams as $team) {
                 <img src="../amyofootball_logo.png" alt="Amyofootball" class="navbar-logo">
                 <a href="index.php" class="navbar-home">Home</a>
             </div>
-            <div class="nav-tabs">
+            <button class="hamburger" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-tabs" id="navTabs">
                 <button class="active" onclick="showTab('live')">Live Scores</button>
                 <button onclick="showTab('rosters')">Rosters</button>
                 <button onclick="showTab('playerStats')">Player Stats</button>
@@ -1150,7 +1208,22 @@ foreach ($teams as $team) {
             });
         });
 
+        function toggleMobileMenu() {
+            const navTabs = document.getElementById('navTabs');
+            const hamburger = document.querySelector('.hamburger');
+            navTabs.classList.toggle('mobile-open');
+            hamburger.classList.toggle('active');
+        }
+
         function showTab(tabName) {
+            // Close mobile menu if open
+            const navTabs = document.getElementById('navTabs');
+            const hamburger = document.querySelector('.hamburger');
+            if (navTabs.classList.contains('mobile-open')) {
+                navTabs.classList.remove('mobile-open');
+                hamburger.classList.remove('active');
+            }
+
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
