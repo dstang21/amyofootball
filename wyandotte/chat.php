@@ -513,7 +513,7 @@ $page_title = 'Wyandotte Football League - Chat';
             
             // Replace /pic/filename with actual image
             formattedMessage = formattedMessage.replace(picPattern, (match, filename) => {
-                return `<img src="chat-images/${filename}.png" alt="${filename}" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 8px; display: block;" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<span style=\\'color: #ef4444; font-size: 0.85rem;\\'>[Image not found: ${filename}]</span>');">`;
+                return `<img src="chat-images/${filename}.png" alt="${filename}" style="max-width: 300px; max-height: 300px; border-radius: 8px; margin-top: 8px; display: block;" onerror="this.outerHTML='${escapeHtml(match)}';">`;
             });
             
             return formattedMessage;
