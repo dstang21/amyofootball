@@ -743,7 +743,7 @@ foreach ($teams as $team) {
     <?php include __DIR__ . '/includes/live-ticker.php'; ?>
     
     <div class="header">
-        <h1>&#127944; WYANDOTTE</h1>
+        <h1><a href="index.php" style="color: white; text-decoration: none; cursor: pointer;">&#127944; WYANDOTTE</a></h1>
         <p><?php echo count($teams); ?> Teams</p>
     </div>
 

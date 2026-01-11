@@ -37,7 +37,7 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
         }
 
         .hero-overlay {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -48,13 +48,13 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
         .cta-button {
             display: inline-block;
             padding: 20px 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-size: 1.5rem;
             font-weight: bold;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 25px rgba(249,115,22,0.5);
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -62,7 +62,7 @@ $heroImage = !empty($images) ? 'images/' . basename($images[array_rand($images)]
 
         .cta-button:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+            box-shadow: 0 12px 35px rgba(249,115,22,0.7);
         }
     </style>
 </head>
