@@ -2179,11 +2179,16 @@ foreach ($teams as $team) {
                 ? play.description.substring(0, 50) + '...' 
                 : play.description;
             
+            // Show team logo if available
+            const teamDisplay = play.team_logo 
+                ? `<img src="${play.team_logo}" style="height: 20px; width: auto; vertical-align: middle;">` 
+                : `<span style="color: #f97316; font-weight: bold;">${play.play_type || 'Play'}</span>`;
+            
             content.innerHTML = `
                 <span style="color: #ef4444; font-size: 1rem;">🔴 LIVE</span>
                 <span style="color: #fbbf24; font-weight: bold;">${play.player_name || 'Unknown Player'}</span>
                 <span style="color: #94a3b8;">•</span>
-                <span style="color: #f97316; font-weight: bold;">${play.play_type || 'Play'}</span>
+                ${teamDisplay}
                 <span style="color: #94a3b8;">•</span>
                 <span style="color: #cbd5e1; font-size: 0.8rem;">${shortDesc || ''}</span>
             `;

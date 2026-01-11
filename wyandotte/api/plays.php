@@ -26,11 +26,14 @@ try {
                     p.play_time,
                     p.created_at,
                     pl.full_name as player_name,
-                    pt.position
+                    pt.position,
+                    t.abbreviation as team_abbr,
+                    t.logo as team_logo
                 FROM wyandotte_plays p
                 LEFT JOIN players pl ON p.player_id = pl.id
                 LEFT JOIN wyandotte_rosters wr ON wr.player_id = pl.id
                 LEFT JOIN player_teams pt ON pt.player_id = pl.id
+                LEFT JOIN teams t ON t.id = pt.team_id
                 ORDER BY p.created_at DESC
                 LIMIT " . $limit
             );
@@ -56,10 +59,13 @@ try {
                     p.play_time,
                     p.created_at,
                     pl.full_name as player_name,
-                    pt.position
+                    pt.position,
+                    t.abbreviation as team_abbr,
+                    t.logo as team_logo
                 FROM wyandotte_plays p
                 LEFT JOIN players pl ON p.player_id = pl.id
                 LEFT JOIN player_teams pt ON pt.player_id = pl.id
+                LEFT JOIN teams t ON t.id = pt.team_id
                 ORDER BY p.created_at DESC
                 LIMIT 1
             ");
