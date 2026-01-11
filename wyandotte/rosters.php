@@ -1399,8 +1399,11 @@ foreach ($teams as $team) {
             
             // Hide/show latest play preview based on tab
             const latestPlayPreview = document.getElementById('latestPlayPreview');
-            if (tabName === 'plays') {
+            if (tabName === 'plays' || tabName === 'chat') {
                 latestPlayPreview.style.display = 'none';
+            } else if (latestPlayPreview.querySelector('#latestPlayContent').innerHTML.trim() !== 'Loading...') {
+                // Only show if there's content and not on plays/chat tab
+                latestPlayPreview.style.display = 'block';
             }
             
             // Load plays if plays tab is selected
@@ -1417,7 +1420,7 @@ foreach ($teams as $team) {
             if (tabName === 'playerStats') {
                 updateLivePlayerStats();
                 if (!livePlayerStatsInterval) {
-                    livePlayerStatsInterval = setInterval(updateLivePlayerStats, 60000);
+                    livePlayerStatsInterval = setInterval(updateLivePlayerStats, 15000);
                 }
             } else {
                 if (livePlayerStatsInterval) {
@@ -1972,28 +1975,28 @@ foreach ($teams as $team) {
         // Initialize roster stats on page load
         document.addEventListener('DOMContentLoaded', () => {
             updateRosterStats();
-            rosterStatsInterval = setInterval(updateRosterStats, 60000);
+            rosterStatsInterval = setInterval(updateRosterStats, 15000);
             
             // Load team scores
             loadTeamScores();
-            setInterval(loadTeamScores, 60000); // Update every 60 seconds
+            setInterval(loadTeamScores, 15000); // Update every 15 seconds
 
             // Load latest chat and start refresh interval
             updateLatestChat();
-            setInterval(updateLatestChat, 60000); // Update every 60 seconds
+            setInterval(updateLatestChat, 1000); // Update every 1 second
             
             // Start chat refresh interval (runs continuously in background)
             chatRefreshInterval = setInterval(() => {
                 loadChatMessages();
-            }, 60000);
+            }, 1000);
 
             // Load latest plays and start refresh interval
             updateLatestPlays();
-            setInterval(updateLatestPlays, 60000); // Update every 60 seconds
+            setInterval(updateLatestPlays, 15000); // Update every 15 seconds
 
             // Always update live scores regardless of tab
             updateLiveScores();
-            setInterval(updateLiveScores, 60000); // Update every 60 seconds
+            setInterval(updateLiveScores, 15000); // Update every 15 seconds
 
             // Reload ticker periodically
             setInterval(() => {
@@ -2008,7 +2011,7 @@ foreach ($teams as $team) {
                             currentTicker.innerHTML = newTicker.innerHTML;
                         }
                     });
-            }, 60000); // Update every 60 seconds
+            }, 15000); // Update every 15 seconds
         });
 
         // Load team scores

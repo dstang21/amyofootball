@@ -51,6 +51,10 @@ foreach ($rosteredPlayers as $player) {
     $playerLookup[$key] = $player;
 }
 
+// Get existing play descriptions to avoid duplicates
+$stmt = $pdo->query("SELECT description FROM wyandotte_plays");
+$existingPlays = array_flip($stmt->fetchAll(PDO::FETCH_COLUMN));
+
 // Process each game
 if (isset($scoreboard['events'])) {
     foreach ($scoreboard['events'] as $event) {
@@ -82,6 +86,102 @@ if (isset($scoreboard['events'])) {
         if (!$boxScoreResponse) continue;
         
         $boxScore = json_decode($boxScoreResponse, true);
+        
+        // Get game info for plays
+        $homeTeam = $competition['competitors'][0]['team']['abbreviation'] ?? '';
+        $awayTeam = $competition['competitors'][1]['team']['abbreviation'] ?? '';
+        $gameInfo = $awayTeam . ' @ ' . $homeTeam;
+        
+        // Process scoring plays while we have the data
+        if (isset($boxScore['scoringPlays'])) {
+            foreach ($boxScore['scoringPlays'] as $scoringPlay) {
+                $playId = $scoringPlay['id'] ?? null;
+                
+                // Get play details from drives
+                $playDetails = null;
+                if (isset($boxScore['drives']['previous'])) {
+                    foreach ($boxScore['drives']['previous'] as $drive) {
+                        if (isset($drive['plays'])) {
+                            foreach ($drive['plays'] as $play) {
+                                if ($play['id'] == $playId) {
+                                    $playDetails = $play;
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (!$playDetails) continue;
+                
+                $description = $playDetails['text'] ?? '';
+                
+                // Skip if we've already recorded this play
+                if (isset($existingPlays[$description])) continue;
+                
+                // Extract player name from play text
+                $playerId = null;
+                $playerName = '';
+                foreach ($playerLookup as $pName => $pData) {
+                    if (stripos($description, $pName) !== false) {
+                        $playerId = $pData['id'];
+                        $playerName = $pName;
+                        break;
+                    }
+                }
+                
+                // Skip if player not on any roster
+                if (!$playerId) continue;
+                
+                // Determine play type and points
+                $playType = 'Play';
+                $points = 0;
+                
+                if (stripos($description, 'touchdown pass') !== false || stripos($description, 'pass from') !== false) {
+                    if (stripos($description, ' to ') !== false) {
+                        // Check if our player is the passer or receiver
+                        $beforeTo = stripos($description, ' to ');
+                        $playerPos = stripos($description, $playerName);
+                        if ($playerPos < $beforeTo) {
+                            $playType = 'TD Pass';
+                            $points = 4.0;
+                        } else {
+                            $playType = 'TD Reception';
+                            $points = 6.0;
+                        }
+                    }
+                } elseif ((stripos($description, 'rush') !== false || stripos($description, 'run for') !== false) && stripos($description, 'touchdown') !== false) {
+                    $playType = 'TD Rush';
+                    $points = 6.0;
+                } elseif (stripos($description, 'intercepted') !== false || stripos($description, 'interception') !== false) {
+                    $playType = 'Interception';
+                    $points = 2.0;
+                } elseif (stripos($description, 'sack') !== false) {
+                    $playType = 'Sack';
+                    $points = 1.0;
+                } elseif (stripos($description, 'fumble') !== false && stripos($description, 'recovered') !== false) {
+                    $playType = 'Fumble Recovery';
+                    $points = 2.0;
+                }
+                
+                // Get quarter and time
+                $period = $playDetails['period']['number'] ?? 1;
+                $clock = $playDetails['clock']['displayValue'] ?? '';
+                $gameContext = $gameInfo . ' - Q' . $period . ' ' . $clock;
+                
+                // Insert play into database
+                try {
+                    $stmt = $pdo->prepare("
+                        INSERT INTO wyandotte_plays (player_id, play_type, description, points, game_info, play_time)
+                        VALUES (?, ?, ?, ?, ?, NOW())
+                    ");
+                    $stmt->execute([$playerId, $playType, $description, $points, $gameContext]);
+                    $existingPlays[$description] = true;
+                } catch (PDOException $e) {
+                    // Skip duplicate or error
+                }
+            }
+        }
         
         // Parse player stats from box score
         if (isset($boxScore['boxscore']['players'])) {
