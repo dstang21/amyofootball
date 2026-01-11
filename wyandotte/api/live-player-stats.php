@@ -160,14 +160,12 @@ if (isset($scoreboard['events'])) {
                     }
                 }
                 
-                // Skip if player not on any roster
+                // If no roster match, still create a play entry but with NULL player_id
                 if (!$playerId) {
-                    $playsSkipped++;
-                    // Extract player name from description for better error message
+                    // Extract player name from description
                     preg_match('/([A-Z]\.[A-Za-z]+)/', $description, $matches);
-                    $foundName = $matches[1] ?? 'Unknown';
-                    $playErrors[] = "Player not rostered: $foundName - " . substr($description, 0, 50) . "...";
-                    continue;
+                    $foundName = $matches[1] ?? 'Unknown Player';
+                    $playerName = $foundName;
                 }
                 
                 // Determine play type and points

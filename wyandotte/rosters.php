@@ -1390,10 +1390,10 @@ foreach ($teams as $team) {
 
             // Hide/show latest chat preview based on tab
             const latestChatPreview = document.getElementById('latestChatPreview');
-            if (tabName === 'chat') {
+            if (tabName === 'chat' || tabName === 'plays') {
                 latestChatPreview.style.display = 'none';
             } else if (latestChatPreview.innerHTML.trim() !== '') {
-                // Only show if there's content and not on chat tab
+                // Only show if there's content and not on chat or plays tab
                 latestChatPreview.style.display = 'block';
             }
             
@@ -1463,14 +1463,12 @@ foreach ($teams as $team) {
             messages.reverse();
 
             container.innerHTML = messages.map(msg => `
-                <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 15px; margin-bottom: 10px; border-left: 3px solid #f97316;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <span style="font-size: 1.5rem;">${avatarMap[msg.avatar] || '🏈'}</span>
-                        <span style="color: #fbbf24; font-weight: bold;">${escapeHtml(msg.username)}</span>
-                        <span style="color: #94a3b8; font-size: 0.75rem;">#${msg.user_ip}</span>
-                        <span style="color: #64748b; font-size: 0.85rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 6px; padding: 8px 12px; margin-bottom: 6px; border-left: 2px solid #f97316;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span style="color: #fbbf24; font-weight: bold; font-size: 0.85rem;">${escapeHtml(msg.username)}</span>
+                        <span style="color: #64748b; font-size: 0.75rem; margin-left: auto;">${timeAgo(msg.created_at)}</span>
                     </div>
-                    <div style="color: #cbd5e1; line-height: 1.5;">${escapeHtml(msg.message)}</div>
+                    <div style="color: #cbd5e1; line-height: 1.4; font-size: 0.9rem;">${escapeHtml(msg.message)}</div>
                 </div>
             `).join('');
 
