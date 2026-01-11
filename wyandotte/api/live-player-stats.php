@@ -165,7 +165,17 @@ if (isset($scoreboard['events'])) {
                     // Extract player name from description
                     preg_match('/([A-Z]\.[A-Za-z]+)/', $description, $matches);
                     $foundName = $matches[1] ?? 'Unknown Player';
-                    $playerName = $foundName;
+                    $playerName = $foundName;                    
+                    // Track missing player for console output
+                    if (!isset($missingPlayers[$foundName])) {
+                        $missingPlayers[$foundName] = 0;
+                    }
+                    $missingPlayers[$foundName]++;                    
+                    // Track missing player for console output
+                    if (!isset($missingPlayers[$foundName])) {
+                        $missingPlayers[$foundName] = 0;
+                    }
+                    $missingPlayers[$foundName]++;
                 }
                 
                 // Determine play type and points
@@ -320,7 +330,8 @@ $result = [
         'processed' => $playsProcessed,
         'inserted' => $playsInserted,
         'skipped' => $playsSkipped,
-        'errors' => $playErrors
+        'errors' => $playErrors,
+        'missing_players' => $missingPlayers
     ]
 ];
 

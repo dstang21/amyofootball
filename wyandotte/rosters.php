@@ -1816,7 +1816,11 @@ foreach ($teams as $team) {
                         const sync = data.plays_sync;
                         console.log(`🏈 PLAYS SYNC: Processed=${sync.processed}, Inserted=${sync.inserted}, Skipped=${sync.skipped}`);
                         if (sync.errors && sync.errors.length > 0) {
-                            console.warn('Play Sync Errors:', sync.errors);
+                            console.error('❌ Play Sync Errors:', sync.errors);
+                        }
+                        if (sync.missing_players && Object.keys(sync.missing_players).length > 0) {
+                            console.log('👤 MISSING PLAYERS (not in database):', sync.missing_players);
+                            console.log('📋 Players to add:', Object.keys(sync.missing_players).join(', '));
                         }
                     }
                     
@@ -1906,7 +1910,11 @@ foreach ($teams as $team) {
                         const sync = statsData.plays_sync;
                         console.log(`🏈 PLAYS SYNC: Processed=${sync.processed}, Inserted=${sync.inserted}, Skipped=${sync.skipped}`);
                         if (sync.errors && sync.errors.length > 0) {
-                            console.warn('Play Sync Errors:', sync.errors);
+                            console.error('❌ Play Sync Errors:', sync.errors);
+                        }
+                        if (sync.missing_players && Object.keys(sync.missing_players).length > 0) {
+                            console.log('👤 MISSING PLAYERS (not in database):', sync.missing_players);
+                            console.log('📋 Players to add:', Object.keys(sync.missing_players).join(', '));
                         }
                     }
                     
