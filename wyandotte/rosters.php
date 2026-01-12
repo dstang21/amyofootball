@@ -252,7 +252,7 @@ foreach ($teams as $team) {
         .team-card {
             background: white;
             border-radius: 15px;
-            padding: 25px;
+            padding: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transition: transform 0.3s;
             position: relative;
@@ -263,9 +263,9 @@ foreach ($teams as $team) {
         }
         .team-header {
             color: white;
-            padding: 20px;
+            padding: 12px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -297,15 +297,15 @@ foreach ($teams as $team) {
                 repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.5) 10px, rgba(255,255,255,.5) 20px);
         }
         .team-logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 8px;
             border-radius: 50%;
             background: rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             border: 3px solid rgba(255,255,255,0.3);
             overflow: hidden;
             position: relative;
@@ -317,16 +317,16 @@ foreach ($teams as $team) {
             object-fit: cover;
         }
         .team-name {
-            font-size: 1.8rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             position: relative;
             z-index: 1;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
             letter-spacing: 0.5px;
         }
         .team-owner {
-            font-size: 1rem;
+            font-size: 0.85rem;
             opacity: 0.95;
             position: relative;
             z-index: 1;
@@ -337,7 +337,7 @@ foreach ($teams as $team) {
             list-style: none;
         }
         .roster-item {
-            padding: 12px;
+            padding: 8px;
             margin-bottom: 8px;
             background: #f8f9fa;
             border-radius: 8px;
