@@ -54,19 +54,23 @@ foreach ($rosteredPlayers as $player) {
     $key = strtolower($player['full_name']);
     $playerLookup[$key] = $player;
     
+    // Fallback lookup by name variations
+    $key = strtolower($player['full_name']);
+    $playerLookupByName[$key] = $player;
+    
     // Add first initial + last name format (e.g., "j.love" for "Jordan Love")
     $nameParts = explode(' ', $player['full_name']);
     if (count($nameParts) >= 2) {
         $firstInitial = strtolower(substr($nameParts[0], 0, 1));
         $lastName = strtolower($nameParts[count($nameParts) - 1]);
         $abbreviated = $firstInitial . '.' . $lastName;
-        $playerLookup[$abbreviated] = $player;
+        $playerLookupByName[$abbreviated] = $player;
     }
     
     // Add last name only
     if (count($nameParts) >= 2) {
         $lastName = strtolower($nameParts[count($nameParts) - 1]);
-        $playerLookup[$lastName] = $player;
+        $playerLookupByName[$lastName] = $player;
     }
 }
 
@@ -264,12 +268,22 @@ if (isset($scoreboard['events'])) {
                     
                     foreach ($statCategory['athletes'] as $athlete) {
                         $playerName = $athlete['athlete']['displayName'] ?? '';
-                        $playerKey = strtolower($playerName);
+                        $espnId = $athlete['athlete']['id'] ?? null;
+                        
+                        // Match by ESPN ID first (most reliable)
+                        $rosteredPlayer = null;
+                        if ($espnId && isset($playerLookup[$espnId])) {
+                            $rosteredPlayer = $playerLookup[$espnId];
+                        } else {
+                            // Fallback to name matching
+                            $playerKey = strtolower($playerName);
+                            if (isset($playerLookupByName[$playerKey])) {
+                                $rosteredPlayer = $playerLookupByName[$playerKey];
+                            }
+                        }
                         
                         // Check if this player is on any wyandotte roster
-                        if (!isset($playerLookup[$playerKey])) continue;
-                        
-                        $rosteredPlayer = $playerLookup[$playerKey];
+                        if (!$rosteredPlayer) continue;
                         $playerId = $rosteredPlayer['id'];
                         
                         if (!isset($allPlayerStats[$playerId])) {
