@@ -813,6 +813,23 @@ foreach ($teams as $team) {
             font-size: 0.85rem;
             margin-top: 5px;
             line-height: 1.4;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .modal-player-stats.expanded {
+            max-height: 500px;
+        }
+        .stats-toggle {
+            color: #fbbf24;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 3px;
+            user-select: none;
+        }
+        .stats-toggle:hover {
+            color: #f59e0b;
         }}
         .modal-player-team {
             color: #cbd5e1;
@@ -2186,6 +2203,8 @@ foreach ($teams as $team) {
 
                         const liveIndicator = isLive ? '<span style="color: #ef4444; font-weight: bold;"> 🔴 LIVE</span>' : '';
                         const pointsColor = points > 0 ? '#fbbf24' : '#9ca3af';
+                        const hasStats = statsHtml.length > 0;
+                        const statsId = `stats-${rosterPlayer.player_id}-${Date.now()}`;
                         
                         playersHtml += `
                             <div class="modal-player-item">
@@ -2194,10 +2213,11 @@ foreach ($teams as $team) {
                                         <span class="modal-player-name">${rosterPlayer.full_name}</span>
                                         <span class="modal-player-team">${rosterPlayer.nfl_team_abbr || 'FA'} - ${rosterPlayer.position}</span>
                                         ${liveIndicator}
+                                        ${hasStats ? `<br><span class="stats-toggle" onclick="toggleStats('${statsId}')">▶ View Stats</span>` : ''}
                                     </div>
                                     <span class="modal-player-points" style="color: ${pointsColor};">${points.toFixed(1)}</span>
                                 </div>
-                                ${statsHtml.length > 0 ? `<div class="modal-player-stats">${statsHtml.join('<br>')}</div>` : '<div class="modal-player-stats">No stats yet</div>'}
+                                ${hasStats ? `<div class="modal-player-stats" id="${statsId}">${statsHtml.join('<br>')}</div>` : '<div class="modal-player-stats">No stats yet</div>'}
                             </div>
                         `;
                     });
@@ -2215,6 +2235,19 @@ foreach ($teams as $team) {
         function closeTeamModal(event) {
             if (!event || event.target.id === 'teamModal') {
                 document.getElementById('teamModal').classList.remove('active');
+            }
+        }
+
+        function toggleStats(statsId) {
+            const statsElement = document.getElementById(statsId);
+            const toggle = event.target;
+            
+            if (statsElement.classList.contains('expanded')) {
+                statsElement.classList.remove('expanded');
+                toggle.innerHTML = '▶ View Stats';
+            } else {
+                statsElement.classList.add('expanded');
+                toggle.innerHTML = '▼ Hide Stats';
             }
         }
 
