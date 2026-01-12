@@ -37,22 +37,26 @@ if (!$scoreboardResponse) {
 $scoreboard = json_decode($scoreboardResponse, true);
 $allPlayerStats = [];
 
-// Get all rostered players from wyandotte league
+// Get all rostered players from wyandotte league with ESPN IDs
 $stmt = $pdo->query("
     SELECT DISTINCT p.id, p.full_name, p.first_name, p.last_name, 
-           pt.position, nfl.abbreviation as team_abbr
+           pt.position, nfl.abbreviation as team_abbr, sp.espn_id
     FROM wyandotte_rosters wr
     JOIN players p ON wr.player_id = p.id
     JOIN player_teams pt ON p.id = pt.player_id
     JOIN teams nfl ON pt.team_id = nfl.id
+    LEFT JOIN sleeper_players sp ON p.sleeper_id = sp.player_id
 ");
 $rosteredPlayers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Create lookup by player name
+// Create lookup by ESPN ID (primary) and name (fallback)
 $playerLookup = [];
+$playerLookupByName = [];
 foreach ($rosteredPlayers as $player) {
-    $key = strtolower($player['full_name']);
-    $playerLookup[$key] = $player;
+    // Primary lookup by ESPN ID
+    if (!empty($player['espn_id'])) {
+        $playerLookup[$player['espn_id']] = $player;
+    }
     
     // Fallback lookup by name variations
     $key = strtolower($player['full_name']);
