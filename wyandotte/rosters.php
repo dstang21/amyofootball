@@ -17,7 +17,8 @@ $rosters = [];
 foreach ($teams as $team) {
     $stmt = $pdo->prepare("
         SELECT r.*, p.full_name, p.id as player_id, pt.position, pt.team_id as nfl_team_id, 
-               nfl.name as nfl_team_name, nfl.abbreviation as nfl_team_abbr
+               nfl.name as nfl_team_name, nfl.abbreviation as nfl_team_abbr,
+               nfl.playoff_status, nfl.eliminated_date
         FROM wyandotte_rosters r
         JOIN players p ON r.player_id = p.id
         JOIN player_teams pt ON p.id = pt.player_id
@@ -33,7 +34,8 @@ foreach ($teams as $team) {
 $player_stats = $pdo->query("
     SELECT p.id, p.full_name, COUNT(r.id) as selection_count, 
            GROUP_CONCAT(DISTINCT pt.position) as positions,
-           nfl.abbreviation as nfl_team_abbr, nfl.name as nfl_team_name
+           nfl.abbreviation as nfl_team_abbr, nfl.name as nfl_team_name,
+           nfl.playoff_status, nfl.eliminated_date
     FROM wyandotte_rosters r
     JOIN players p ON r.player_id = p.id
     LEFT JOIN player_teams pt ON p.id = pt.player_id
@@ -386,6 +388,23 @@ foreach ($teams as $team) {
             margin: 0 15px;
             font-weight: 500;
         }
+        
+        /* Eliminated player styling */
+        .roster-item.player-eliminated {
+            opacity: 0.6;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(153, 27, 27, 0.05) 100%);
+        }
+        .roster-item.player-eliminated .player-name {
+            text-decoration: line-through;
+            text-decoration-color: #dc2626;
+            text-decoration-thickness: 2px;
+            color: #6b7280;
+        }
+        .roster-item.player-eliminated:hover {
+            opacity: 0.8;
+            cursor: help;
+        }
+        
         .nfl-team {
             font-size: 0.85rem;
             color: #666;
@@ -979,13 +998,25 @@ foreach ($teams as $team) {
                         </div>
                         <?php if (isset($rosters[$team['id']]) && !empty($rosters[$team['id']])): ?>
                             <ul class="roster-list">
-                                <?php foreach ($rosters[$team['id']] as $player): ?>
-                                <li class="roster-item" data-player-name="<?php echo strtolower($player['full_name']); ?>" data-player-id="<?php echo $player['player_id']; ?>">
+                                <?php foreach ($rosters[$team['id']] as $player): 
+                                    $isEliminated = ($player['playoff_status'] ?? 'active') === 'eliminated';
+                                    $eliminatedClass = $isEliminated ? 'player-eliminated' : '';
+                                    $eliminatedTitle = $isEliminated ? 'title="Team eliminated - ' . ($player['eliminated_date'] ? date('M j', strtotime($player['eliminated_date'])) : 'recent') . '"' : '';
+                                ?>
+                                <li class="roster-item <?php echo $eliminatedClass; ?>" 
+                                    data-player-name="<?php echo strtolower($player['full_name']); ?>" 
+                                    data-player-id="<?php echo $player['player_id']; ?>"
+                                    <?php echo $eliminatedTitle; ?>>
                                     <span class="position-badge"><?php echo htmlspecialchars($player['position']); ?></span>
-                                    <span class="player-name"><?php echo htmlspecialchars($player['full_name']); ?></span>
+                                    <span class="player-name">
+                                        <?php echo htmlspecialchars($player['full_name']); ?>
+                                        <?php if ($isEliminated): ?>
+                                            <span style="color: #dc2626; font-size: 0.8em; margin-left: 5px;">❌</span>
+                                        <?php endif; ?>
+                                    </span>
                                     <span class="nfl-team"><?php echo htmlspecialchars($player['nfl_team_abbr'] ?? ''); ?></span>
                                     <span class="player-stats" id="stats-<?php echo $player['player_id']; ?>"></span>
-                                    </li>
+                                </li>
                                 <?php endforeach; ?>
                             </ul>
                         <?php else: ?>

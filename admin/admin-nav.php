@@ -46,6 +46,7 @@
         <!-- Tools Section -->
         <h3 style="color: var(--primary-color); margin: 30px 0 15px 0;">Tools & Utilities</h3>
         <ul style="list-style: none; padding: 0;">
+            <li><a href="manage-team-playoff-status.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage-team-playoff-status.php' ? 'active' : ''; ?>">❌ Playoff Status</a></li>
             <li><a href="calculate-fantasy-points.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'calculate-fantasy-points.php' ? 'active' : ''; ?>">🧮 Calculate Fantasy Points</a></li>
             <li><a href="manage-users.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'manage-users.php' ? 'active' : ''; ?>">🔐 Admin Users</a></li>
             <li><a href="db-check.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'db-check.php' ? 'active' : ''; ?>">🔍 Database Check</a></li>
