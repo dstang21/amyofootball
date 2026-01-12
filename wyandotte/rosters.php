@@ -739,7 +739,7 @@ foreach ($teams as $team) {
         }
         .team-modal-header {
             background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            padding: 20px;
+            padding: 12px;
             border-radius: 20px 20px 0 0;
             position: sticky;
             top: 0;
@@ -748,7 +748,7 @@ foreach ($teams as $team) {
         .team-modal-header h2 {
             color: white;
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             display: flex;
             justify-content: space-between;
@@ -756,26 +756,26 @@ foreach ($teams as $team) {
         }
         .team-modal-header p {
             color: rgba(255,255,255,0.9);
-            margin: 8px 0 0 0;
-            font-size: 0.95rem;
+            margin: 5px 0 0 0;
+            font-size: 0.8rem;
         }
         .team-modal-score {
             display: none;
         }
         .team-modal-score-inline {
             color: #fbbf24;
-            font-size: 1.6rem;
+            font-size: 1.2rem;
             font-weight: bold;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .team-modal-body {
-            padding: 20px;
+            padding: 12px;
         }
         .modal-player-item {
             background: rgba(0,0,0,0.3);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
             border-left: 4px solid #f97316;
             transition: all 0.3s;
         }
@@ -787,11 +787,11 @@ foreach ($teams as $team) {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
         .modal-player-name {
             color: #ffffff;
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
         }
         .modal-player-position {
@@ -804,16 +804,16 @@ foreach ($teams as $team) {
         }
         .modal-player-points {
             color: #fbbf24;
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             font-weight: bold;
             text-shadow: 0 2px 4px rgba(251,191,36,0.3);
         }
         .modal-player-stats {
             color: #94a3b8;
-            font-size: 0.9rem;
-            margin-top: 8px;
-            line-height: 1.6;
-        }
+            font-size: 0.85rem;
+            margin-top: 5px;
+            line-height: 1.4;
+        }}
         .modal-player-team {
             color: #cbd5e1;
             font-size: 0.85rem;
