@@ -1769,8 +1769,8 @@ foreach ($teams as $team) {
                         statsLookup[player.player_id] = player;
                     });
 
-                    // Then get calculated scores
-                    return fetch('api/calculate-scores.php')
+                    // Get cumulative playoff scores (all games combined)
+                    return fetch('api/calculate-cumulative-scores.php')
                         .then(response => response.json())
                         .then(scoresData => {
                             if (!scoresData.success || !scoresData.team_scores) return;
@@ -2123,7 +2123,7 @@ foreach ($teams as $team) {
             // Fetch full roster
             Promise.all([
                 fetch(`api/team-roster.php?team_id=${teamId}`).then(r => r.json()),
-                fetch('api/calculate-scores.php').then(r => r.json())
+                fetch('api/calculate-cumulative-scores.php').then(r => r.json())
             ]).then(([rosterData, scoresData]) => {
                 if (!rosterData.success) {
                     document.getElementById('modalPlayersList').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading roster</p>';
