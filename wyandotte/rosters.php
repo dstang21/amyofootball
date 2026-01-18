@@ -1879,7 +1879,7 @@ foreach ($teams as $team) {
 
         // Load team scores
         function loadTeamScores() {
-            fetch('api/calculate-scores.php')
+            fetch('api/calculate-cumulative-scores.php')
                 .then(response => response.json())
                 .then(data => {
                     if (!data.success || !data.team_scores || data.team_scores.length === 0) {
