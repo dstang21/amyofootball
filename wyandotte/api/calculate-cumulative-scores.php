@@ -176,8 +176,9 @@ usort($teamScores, function($a, $b) {
 });
 
 echo json_encode([
-    'players' => array_values($playerScores),
-    'teams' => $teamScores,
+    'success' => true,
+    'team_scores' => $teamScores,
+    'player_scores' => array_values($playerScores),
     'timestamp' => time(),
     'note' => 'Cumulative playoff stats - all games combined'
 ]);
