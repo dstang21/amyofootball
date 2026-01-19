@@ -159,13 +159,15 @@ foreach ($teamRosters as $row) {
             'team_name' => $row['team_name'],
             'owner_name' => $row['owner_name'],
             'total_points' => 0,
-            'player_count' => 0
+            'player_count' => 0,
+            'players' => []
         ];
     }
     
     if (isset($playerScores[$row['player_id']])) {
         $teamScores[$tid]['total_points'] += $playerScores[$row['player_id']]['total_points'];
         $teamScores[$tid]['player_count']++;
+        $teamScores[$tid]['players'][] = $playerScores[$row['player_id']];
     }
 }
 
