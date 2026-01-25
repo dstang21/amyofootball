@@ -106,6 +106,16 @@ while ($currentDate <= $endDateTime) {
                 
                 foreach ($statCategory['athletes'] as $athlete) {
                     $espnId = $athlete['athlete']['id'] ?? null;
+                    $athleteName = $athlete['athlete']['displayName'] ?? 'Unknown';
+                    
+                    // Debug: Check if this is one of our problem players
+                    $problemPlayers = ['Drake Maye', 'Kyren Williams', 'Kenneth Walker III'];
+                    if (in_array($athleteName, $problemPlayers)) {
+                        echo "<p style='color: blue;'>DEBUG: Found {$athleteName} with ESPN ID {$espnId} in {$categoryName}</p>";
+                        if (!isset($playerLookup[$espnId])) {
+                            echo "<p style='color: red;'>ERROR: ESPN ID {$espnId} not in lookup!</p>";
+                        }
+                    }
                     
                     if (!$espnId || !isset($playerLookup[$espnId])) continue;
                     
