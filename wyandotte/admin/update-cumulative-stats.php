@@ -24,9 +24,9 @@ foreach ($rosteredPlayers as $player) {
 
 echo "<p>Found " . count($rosteredPlayers) . " rostered players with ESPN IDs</p>";
 
-// NFL Playoffs 2026 started January 11, 2026
+// NFL Playoffs 2026 started January 10, 2026 (Wild Card Weekend)
 // Fetch all games since then
-$startDate = '20260111'; // Format: YYYYMMDD
+$startDate = '20260110'; // Format: YYYYMMDD
 $endDate = date('Ymd'); // Today
 
 echo "<p>Fetching games from {$startDate} to {$endDate}...</p>";
