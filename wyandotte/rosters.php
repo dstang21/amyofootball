@@ -2145,6 +2145,11 @@ foreach ($teams as $team) {
                         playerScoresLookup[player.player_id] = player;
                     });
                 }
+                
+                // Debug logging
+                console.log('Team Scores Data:', teamScores);
+                console.log('Player Scores Lookup:', playerScoresLookup);
+                console.log('Roster Data:', roster);
 
                 // Update modal header with team logo background
                 const modalHeader = document.getElementById('modalHeaderWithBg');
