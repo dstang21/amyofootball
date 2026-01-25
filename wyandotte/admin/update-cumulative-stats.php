@@ -188,6 +188,9 @@ while ($currentDate <= $endDateTime) {
                         $allPlayerStats[$playerId]['tackles_total'] += ($solo + $assisted);
                         $allPlayerStats[$playerId]['sacks'] += floatval($parsedStats['SACKS'] ?? 0);
                         $allPlayerStats[$playerId]['interceptions'] += intval($parsedStats['INT'] ?? 0);
+                    } elseif ($categoryName === 'interceptions') {
+                        // ESPN provides interceptions in a separate category
+                        $allPlayerStats[$playerId]['interceptions'] += intval($parsedStats['INT'] ?? 0);
                     }
                 }
             }
