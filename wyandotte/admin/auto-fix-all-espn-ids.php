@@ -90,6 +90,8 @@ echo "<hr>";
 function normalizeName($name) {
     // Remove suffixes like Jr., Sr., II, III, IV, V
     $name = preg_replace('/\s+(Jr\.?|Sr\.?|II|III|IV|V)$/i', '', $name);
+    // Remove periods from initials (R.J. -> RJ)
+    $name = str_replace('.', '', $name);
     return trim($name);
 }
 
