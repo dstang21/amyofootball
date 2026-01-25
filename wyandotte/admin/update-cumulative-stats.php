@@ -190,6 +190,11 @@ while ($currentDate <= $endDateTime) {
 
 echo "<h3>Saving to Database...</h3>";
 
+// Clear existing stats first to ensure clean cumulative calculation
+echo "<p>Clearing old stats...</p>";
+$pdo->exec("DELETE FROM wyandotte_player_playoff_stats");
+echo "<p>✓ Cleared</p>";
+
 // Save accumulated stats to database
 $saved = 0;
 $updated = 0;
