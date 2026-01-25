@@ -2174,6 +2174,7 @@ foreach ($teams as $team) {
                 let playersHtml = '';
                 if (roster && roster.length > 0) {
                     roster.forEach(rosterPlayer => {
+                        console.log(`Looking for player ${rosterPlayer.player_id} (${rosterPlayer.full_name}):`, playerScoresLookup[rosterPlayer.player_id]);
                         const playerScore = playerScoresLookup[rosterPlayer.player_id];
                         const points = playerScore ? playerScore.total_points : 0;
                         const isLive = playerScore ? playerScore.is_live : false;
