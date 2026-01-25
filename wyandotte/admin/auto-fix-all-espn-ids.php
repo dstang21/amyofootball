@@ -86,20 +86,46 @@ foreach ($dates as $date) {
 echo "<p>Found " . count($foundIds) . " unique players in playoff games</p>";
 echo "<hr>";
 
+// Helper function to normalize names for matching
+function normalizeName($name) {
+    // Remove suffixes like Jr., Sr., II, III, IV, V
+    $name = preg_replace('/\s+(Jr\.?|Sr\.?|II|III|IV|V)$/i', '', $name);
+    return trim($name);
+}
+
+// Create normalized lookup
+$normalizedFoundIds = [];
+foreach ($foundIds as $name => $id) {
+    $normalized = normalizeName($name);
+    $normalizedFoundIds[$normalized] = ['id' => $id, 'original' => $name];
+}
+
 // Match and update
 $updated = 0;
 $notFound = 0;
 $alreadyCorrect = 0;
 
 foreach ($allPlayers as $player) {
+    // Try exact match first
     $correctId = $foundIds[$player['full_name']] ?? null;
+    $matchedName = $player['full_name'];
+    
+    // If no exact match, try normalized name
+    if (!$correctId) {
+        $normalized = normalizeName($player['full_name']);
+        if (isset($normalizedFoundIds[$normalized])) {
+            $correctId = $normalizedFoundIds[$normalized]['id'];
+            $matchedName = $normalizedFoundIds[$normalized]['original'];
+        }
+    }
     
     if ($correctId) {
         if ($player['current_espn_id'] == $correctId) {
             echo "<p style='color: green;'>✓ {$player['full_name']}: Already correct ({$correctId})</p>";
             $alreadyCorrect++;
         } else {
-            echo "<p style='color: blue;'>⟳ {$player['full_name']}: Updating {$player['current_espn_id']} → {$correctId}</p>";
+            $nameNote = ($matchedName !== $player['full_name']) ? " (matched as: {$matchedName})" : "";
+            echo "<p style='color: blue;'>⟳ {$player['full_name']}{$nameNote}: Updating {$player['current_espn_id']} → {$correctId}</p>";
             
             if ($player['sleeper_id']) {
                 $stmt = $pdo->prepare("
